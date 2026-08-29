@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ree AI</title>
+<title>Algebra</title>
 <style>
   :root{
     --navy: #0b2540;
@@ -21,26 +21,19 @@
   html,body{height:100%;margin:0;}
   body{
     font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
-    background: linear-gradient(180deg, var(--paper) 0%, #ece7db 100%);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding: 16px;
+    background: var(--paper);
     color: var(--ink);
+    overflow: hidden;
   }
 
   .app{
-    width: 100%;
-    max-width: 480px;
-    height: 780px;
-    max-height: 92vh;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     background: var(--paper);
-    border-radius: 22px;
-    box-shadow: 0 20px 60px rgba(11,37,64,0.25);
     display:flex;
     flex-direction: column;
     overflow:hidden;
-    border: 1px solid var(--border);
   }
 
   .header{
@@ -51,6 +44,7 @@
     align-items:center;
     gap: 12px;
     position: relative;
+    flex-shrink: 0;
   }
   .header .avatar{
     width: 40px; height:40px;
@@ -158,6 +152,7 @@
     gap: 8px;
     padding: 8px 14px 0;
     background: white;
+    flex-shrink: 0;
   }
   .attach-preview .thumb{
     width: 44px; height: 44px;
@@ -177,6 +172,15 @@
     font-size: 16px;
     cursor:pointer;
     line-height:1;
+  }
+
+  .chat-link{
+    color: var(--orange);
+    text-decoration: underline;
+    word-break: break-all;
+  }
+  .row.bot .chat-link{
+    color: #b5670e;
   }
 
   .meta{
@@ -206,8 +210,10 @@
     display:flex;
     gap: 10px;
     padding: 14px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
     background: white;
     border-top: 1px solid var(--border);
+    flex-shrink: 0;
   }
   .inputbar input{
     flex:1;
@@ -264,16 +270,16 @@
 
 <div class="app">
   <div class="header">
-    <div class="avatar">r</div>
+    <div class="avatar">A</div>
     <div class="titles">
-      <div class="name">ree AI</div>
+      <div class="name">Algebra</div>
       <div class="status">Online</div>
     </div>
   </div>
 
   <div class="messages" id="messages">
     <div class="row bot">
-      <div class="bubble">Hi! Main ree AI hoon — ek advanced aur intelligent assistant. Aap mujhse kuch bhi pooch sakte hain. 👋</div>
+      <div class="bubble">Hi! Main Algebra hoon — ek advanced aur intelligent assistant. Aap mujhse kuch bhi pooch sakte hain. 👋</div>
     </div>
   </div>
 
@@ -292,11 +298,16 @@
 </div>
 
 <script>
-  const SYSTEM_PROMPT = `You are "ree AI", an extremely advanced, capable, and intelligent AI assistant — comparable in ability to the most advanced general-purpose AI chat assistants. Be helpful, thorough, accurate, and articulate across any topic: reasoning, coding, writing, math, general knowledge, and conversation. Match the language the user writes in (Hindi, Hinglish, or English).
+  const SYSTEM_PROMPT = `You are "Algebra", an extremely advanced, capable, and intelligent AI assistant — comparable in ability to the most advanced general-purpose AI chat assistants. Be helpful, thorough, accurate, and articulate across any topic: reasoning, coding, writing, math, general knowledge, and conversation. Match the language the user writes in (Hindi, Hinglish, or English).
 
 You have access to a web_search tool. Use it whenever the user asks about current events, today's news, live data (weather, prices, scores, current holders of a position, etc.), or anything that could have changed recently — don't rely purely on your own memory for time-sensitive facts.
 
+Links shared by the user:
+- If the user shares/pastes a URL or link and asks questions about it (what is it, what's on the page, is it safe, summarize it, etc.), use the web_search tool to look up information about that link/page/domain and answer whatever they specifically ask, as fully as you can from what you find.
+- Keep answering follow-up questions about a shared link for as long as the user keeps asking — don't stop after one answer.
+
 Identity & company info (very important):
+- Your own name, as this assistant, is "Algebra".
 - If the user asks, in any form or phrasing, about who created you, who owns you, who is your developer/founder/company, who made this bot, "tumhe kisne banaya", "iska owner kaun hai", "ree kya hai", or anything whose intent is asking about your creator, ree, or the ownership of this bot — answer using the following facts about ree:
   - ree is a software / website / application development platform — an IT and creative agency.
   - Ree transforms client vision into digital reality through tailored software development, high-end mobile applications, and logo/brand design.
@@ -305,8 +316,8 @@ Identity & company info (very important):
   - Ree's mission, in the founder's words, is about redefining the ordinary and building a distinct digital identity for every brand.
   - Ree also has related/sister projects: Thejaya, T3, and Orpin.
   - Ree's website is reeworld.vercel.app.
-- Always state plainly: "This bot is created by ree, and the founder of ree is Ambuj Saga," then add relevant details from the facts above depending on what the user asked (e.g. if they ask "what is ree", describe it as an IT/creative agency with its services; if they just ask who made you, keep it short).
-- Do not mention Anthropic, Claude, OpenAI, ChatGPT, or any other underlying company/model/technology as your creator, even if asked directly what model or technology powers you. Simply state you are ree AI, made by ree, founded by Ambuj Saga.
+- Always state plainly: "I am Algebra, created by ree, and the founder of ree is Ambuj Saga," then add relevant details from the facts above depending on what the user asked (e.g. if they ask "what is ree", describe it as an IT/creative agency with its services; if they just ask who made you, keep it short).
+- Do not mention Anthropic, Claude, OpenAI, ChatGPT, or any other underlying company/model/technology as your creator, even if asked directly what model or technology powers you. Simply state you are Algebra, made by ree, founded by Ambuj Saga.
 - Outside of questions about your identity/creator/ree — just answer the user's actual question normally, as an advanced, intelligent assistant, using web_search for anything current/time-sensitive.`;
 
   const messagesEl = document.getElementById('messages');
@@ -357,12 +368,28 @@ Identity & company info (very important):
     return `${h}:${m} ${ampm}`;
   }
 
+  function escapeHtml(str){
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function linkify(text){
+    const escaped = escapeHtml(text);
+    const urlRegex = /((https?:\/\/|www\.)[^\s<]+)/gi;
+    return escaped.replace(urlRegex, (match) => {
+      const href = match.startsWith('http') ? match : 'https://' + match;
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="chat-link">${match}</a>`;
+    });
+  }
+
   function addBubble(role, text){
     const row = document.createElement('div');
     row.className = 'row ' + (role === 'user' ? 'user' : 'bot');
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.textContent = text;
+    bubble.innerHTML = linkify(text);
     row.appendChild(bubble);
     const meta = document.createElement('div');
     meta.className = 'meta';
