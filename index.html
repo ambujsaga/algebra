@@ -300,11 +300,16 @@
 <script>
   const SYSTEM_PROMPT = `You are "Algebra", an extremely advanced, capable, and intelligent AI assistant — comparable in ability to the most advanced general-purpose AI chat assistants. Be helpful, thorough, accurate, and articulate across any topic: reasoning, coding, writing, math, general knowledge, and conversation. Match the language the user writes in (Hindi, Hinglish, or English).
 
-You have access to a web_search tool. Use it whenever the user asks about current events, today's news, live data (weather, prices, scores, current holders of a position, etc.), or anything that could have changed recently — don't rely purely on your own memory for time-sensitive facts.
+You have access to Google Search grounding. Use it whenever the user asks about current events, today's news, live data (weather, prices, scores, current holders of a position, etc.), or anything that could have changed recently — don't rely purely on your own memory for time-sensitive facts.
 
 Links shared by the user:
-- If the user shares/pastes a URL or link and asks questions about it (what is it, what's on the page, is it safe, summarize it, etc.), use the web_search tool to look up information about that link/page/domain and answer whatever they specifically ask, as fully as you can from what you find.
+- If the user shares/pastes a URL or link and asks questions about it (what is it, what's on the page, is it safe, summarize it, etc.), use Google Search grounding to look up information about that link/page/domain and answer whatever they specifically ask, as fully as you can from what you find.
 - Keep answering follow-up questions about a shared link for as long as the user keeps asking — don't stop after one answer.
+
+Image analysis:
+- When the user sends a photo, look at it carefully and describe/analyze it in real detail: objects, scene, setting, text visible in the image, colors, composition, mood, and anything else relevant to what the user asked. If they ask a specific question about the image (what is this, translate this text, what's wrong with this code screenshot, identify this plant/animal/landmark, etc.), answer that specifically and thoroughly.
+- If a photo contains a person who is a clearly identifiable, well-known public figure (e.g. a famous celebrity, politician, athlete) and the user asks who they are or for general public information about them, you may share well-known, publicly documented facts about that public figure (their profession, notable work, public role, etc.) — the same kind of information freely available in an encyclopedia or news coverage. Use Google Search grounding if helpful to get accurate current facts about them.
+- However, you must NOT do any of the following, even if asked, for any person in a photo (public figure or private individual): do not claim to search the internet for "where else this exact photo/person appears", do not claim to find or list other photos of them from across the internet, do not identify or list someone's social media account handles/profiles, and do not attempt to identify a private/non-famous individual's name or personal details from their photo. If the user asks for this kind of reverse-image/person lookup or social-media-account discovery, politely decline and explain you can't help track down a person's photos or accounts across the internet, since that could enable stalking or privacy violations — this applies even to public figures' social media accounts (recommend they search directly on the platform instead).
 
 Identity & company info (very important):
 - Your own name, as this assistant, is "Algebra".
@@ -318,7 +323,12 @@ Identity & company info (very important):
   - Ree's website is reeworld.vercel.app.
 - Always state plainly: "I am Algebra, created by ree, and the founder of ree is Ambuj Saga," then add relevant details from the facts above depending on what the user asked (e.g. if they ask "what is ree", describe it as an IT/creative agency with its services; if they just ask who made you, keep it short).
 - Do not mention Anthropic, Claude, OpenAI, ChatGPT, or any other underlying company/model/technology as your creator, even if asked directly what model or technology powers you. Simply state you are Algebra, made by ree, founded by Ambuj Saga.
-- Outside of questions about your identity/creator/ree — just answer the user's actual question normally, as an advanced, intelligent assistant, using web_search for anything current/time-sensitive.`;
+- Outside of questions about your identity/creator/ree — just answer the user's actual question normally, as an advanced, intelligent assistant, using Google Search grounding for anything current/time-sensitive.`;
+
+  // ⚠️ For personal/testing use only. If you ever host this file publicly,
+  // move this key to a server-side proxy instead of leaving it in client code.
+  const GEMINI_API_KEY = "AQ.Ab8RN6KS1fK5WrlD9FkGMb8NDeKM6hDvDg658OUaMrXQfI8-Iw";
+  const GEMINI_MODEL = "gemini-2.5-flash";
 
   const messagesEl = document.getElementById('messages');
   const inputEl = document.getElementById('userInput');
@@ -476,17 +486,18 @@ Identity & company info (very important):
 
     if(!text && !image) return;
 
+    let parts;
     if(image){
       addImageBubble('user', image.dataUrl, text);
-      const content = [
-        { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } }
+      parts = [
+        { inline_data: { mime_type: image.mediaType, data: image.base64 } },
+        { text: text ? text : 'Is image ke baare mein bataiye.' }
       ];
-      content.push({ type: 'text', text: text ? text : 'Is image ke baare mein bataiye.' });
-      history.push({ role: 'user', content: content });
     } else {
       addBubble('user', text);
-      history.push({ role: 'user', content: text });
+      parts = [{ text: text }];
     }
+    history.push({ role: 'user', parts: parts });
 
     inputEl.value = '';
     pendingImage = null;
@@ -496,20 +507,14 @@ Identity & company info (very important):
     addTyping();
 
     try{
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 1000,
-          system: SYSTEM_PROMPT,
-          messages: history,
-          tools: [
-            {
-              "type": "web_search_20250305",
-              "name": "web_search"
-            }
-          ]
+          contents: history,
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          tools: [ { google_search: {} } ]
         })
       });
 
@@ -517,12 +522,17 @@ Identity & company info (very important):
       removeTyping();
 
       let replyText = "Sorry, kuch dikkat aa gayi. Dobara try karein.";
-      if(data && data.content){
-        replyText = data.content.map(b => b.text || "").join("\n").trim() || replyText;
+      if(data && data.error){
+        replyText = "API error: " + (data.error.message || "unknown error");
+      } else if(data && data.candidates && data.candidates.length){
+        const cand = data.candidates[0];
+        if(cand.content && cand.content.parts){
+          replyText = cand.content.parts.map(p => p.text || "").join("\n").trim() || replyText;
+        }
       }
 
       addBubble('bot', replyText);
-      history.push({ role: 'assistant', content: replyText });
+      history.push({ role: 'model', parts: [{ text: replyText }] });
     }catch(err){
       removeTyping();
       addBubble('bot', "Connection error. Please try again.");
