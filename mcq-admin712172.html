@@ -63,6 +63,23 @@
   .nav-btn.active{color:var(--primary-blue);}
   #loginView{display:block;}
   #dashView{display:none;}
+
+  /* ===== ADDITIVE: Users (Active/Login Status) tab ===== */
+  .users-summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+  .users-summary .usum{flex:1;min-width:100px;background:#f4f6f9;border-radius:8px;padding:10px;text-align:center;}
+  .users-summary .usum b{display:block;font-size:1.3rem;color:var(--primary-blue);}
+  .users-summary .usum span{font-size:.7rem;color:#666;}
+  .user-status-card{border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .user-status-card .u-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+  .user-status-card .u-name{font-weight:700;font-size:.95rem;color:var(--text-dark);}
+  .user-status-card .u-roll{font-size:.78rem;color:#666;}
+  .u-badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+  .u-badge.active{background:#e6f7ee;color:#1a9c5b;}
+  .u-badge.inactive{background:#eef2f7;color:#64748b;}
+  .u-badge.loggedin{background:#eef6ff;color:#1e3a5f;}
+  .u-badge.neverlogin{background:#fdecea;color:var(--sarkari-red);}
+  .u-warning{margin-top:8px;background:#fff4e5;border:1px solid #ffcf8c;color:#8a5a00;border-radius:7px;padding:8px 10px;font-size:.8rem;}
+  .u-meta{font-size:.75rem;color:#888;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -147,6 +164,17 @@
 
         <button class="btn red" onclick="logoutAdmin()">Logout</button>
       </div>
+
+      <div id="tabUsers" class="tab-section">
+        <div class="card">
+          <h2>👥 Users — Active / Login Status</h2>
+          <span class="small">Live status of every student: kaun abhi app me active hai, kis-kis ne login kiya hai aur kisne nahi, aur kaun kisi doosre student ke Roll Number se login kar sakta hai (same device par multiple Roll Numbers se login hone par warning).</span>
+          <div id="usersSummary" class="users-summary"></div>
+        </div>
+        <div class="card">
+          <div id="usersStatusList"><p class="small">Loading…</p></div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -160,6 +188,9 @@
     </button>
     <button type="button" class="nav-btn" data-tab="tabPassword" onclick="showTab('tabPassword')">
       <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span><span>Password</span>
+    </button>
+    <button type="button" class="nav-btn" data-tab="tabUsers" onclick="showTab('tabUsers')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span>Users</span>
     </button>
   </nav>
 
@@ -472,6 +503,130 @@ onAuthStateChanged(auth, user => {
     document.getElementById('bottomNav').classList.remove('show');
   }
 });
+
+/* =====================================================================
+   ADDITIVE: USERS — ACTIVE / LOGIN STATUS TAB
+   Purely additive block. Nothing above this is edited or removed.
+   Reads data already written by the main app (admin712172.html), which
+   itself was extended only additively (nothing there was touched either):
+     portal/users            -> existing: every registered student
+     portal/activeSessions   -> existing: Single-Device Login Lock, one
+                                 entry per Roll Number while actively
+                                 logged in on some device (removed on
+                                 logout) => used here as "Active Now"
+     portal/loginActivity    -> new, additive: persistent last-login /
+                                 last-logout per Roll Number (kept even
+                                 after logout) => used here as "has this
+                                 user ever logged in"
+     portal/deviceRollMap    -> new, additive: every distinct Roll Number
+                                 that has logged in from a given device
+                                 => used here to flag a Roll Number whose
+                                 device was previously seen logging in as
+                                 a *different* Roll Number (possible use
+                                 of someone else's Roll Number)
+   showTab() is extended (not edited in place) to also recognise the new
+   'tabUsers' section; tabHome/tabPostUpdate/tabPassword behave exactly
+   as before.
+===================================================================== */
+(function(){
+  let usersData = {};
+  let activeSessionsData = {};
+  let loginActivityData = {};
+  let deviceRollMapData = {};
+
+  function fmtWhen(ts){
+    if(!ts) return 'Never';
+    const d = new Date(ts);
+    return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ', ' +
+           d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:true});
+  }
+
+  // deviceId -> [{rollNumber, name, lastLoginAt}], newest first
+  function buildDeviceIndex(){
+    const idx = {};
+    Object.entries(deviceRollMapData||{}).forEach(([deviceId, rolls])=>{
+      idx[deviceId] = Object.values(rolls||{}).sort((a,b)=>(b.lastLoginAt||0)-(a.lastLoginAt||0));
+    });
+    return idx;
+  }
+
+  function renderUsersTab(){
+    const summaryEl = document.getElementById('usersSummary');
+    const listEl = document.getElementById('usersStatusList');
+    if(!listEl) return;
+
+    const allUsers = Object.values(usersData||{});
+    const deviceIdx = buildDeviceIndex();
+    let activeCount = 0, loggedInCount = 0, neverCount = 0;
+
+    const rows = allUsers.map(u=>{
+      const roll = String(u.rollNumber);
+      const session = activeSessionsData[roll];
+      const isActive = !!session;
+      const activity = loginActivityData[roll] || null;
+      const everLoggedIn = !!(activity && activity.lastLoginAt);
+      if(isActive) activeCount++;
+      if(everLoggedIn) loggedInCount++; else neverCount++;
+
+      const currentDeviceId = isActive ? (session.deviceId||'') : (activity ? (activity.lastDeviceId||'') : '');
+      let warningHtml = '';
+      if(currentDeviceId && deviceIdx[currentDeviceId]){
+        const others = deviceIdx[currentDeviceId].filter(r=>String(r.rollNumber) !== roll);
+        if(others.length){
+          const namesList = others.map(o=>esc(o.name||o.rollNumber)+' (Roll '+esc(o.rollNumber)+')').join(', ');
+          warningHtml = '<div class="u-warning">⚠️ Isi device se in Roll Number(s) se bhi login hua hai: ' + namesList +
+            '. Ho sakta hai <b>' + esc(u.name||roll) + '</b> kisi aur student ke Roll Number se login kar raha ho — ya phir yeh device kai students aapas me share karte hain.</div>';
+        }
+      }
+
+      return '<div class="user-status-card">' +
+        '<div class="u-top">' +
+          '<div><div class="u-name">' + esc(u.name||roll) + '</div><div class="u-roll">Roll No: ' + esc(roll) + '</div></div>' +
+          '<div>' +
+            (isActive ? '<span class="u-badge active">🟢 Active Now</span>' : '<span class="u-badge inactive">⚪ Not Active</span>') + ' ' +
+            (everLoggedIn ? '<span class="u-badge loggedin">✅ Logged In</span>' : '<span class="u-badge neverlogin">❌ Never Logged In</span>') +
+          '</div>' +
+        '</div>' +
+        (everLoggedIn ? '<div class="u-meta">Last login: ' + fmtWhen(activity.lastLoginAt) +
+          (activity.lastLogoutAt ? ' · Last logout: ' + fmtWhen(activity.lastLogoutAt) : '') + '</div>' : '') +
+        warningHtml +
+      '</div>';
+    }).join('');
+
+    if(summaryEl){
+      summaryEl.innerHTML =
+        '<div class="usum"><b>' + allUsers.length + '</b><span>Total Users</span></div>' +
+        '<div class="usum"><b>' + activeCount + '</b><span>Active Now</span></div>' +
+        '<div class="usum"><b>' + loggedInCount + '</b><span>Logged In</span></div>' +
+        '<div class="usum"><b>' + neverCount + '</b><span>Never Logged In</span></div>';
+    }
+    listEl.innerHTML = rows || '<p class="small">No users added yet.</p>';
+  }
+
+  // Extend showTab (not edited in place) so it also recognises 'tabUsers'.
+  // tabHome / tabPostUpdate / tabPassword keep behaving exactly as before.
+  const oldShowTabUsers = window.showTab;
+  window.showTab = function(tab){
+    ['tabHome','tabPostUpdate','tabPassword','tabUsers'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.classList.toggle('active', id === tab);
+    });
+    document.querySelectorAll('.nav-btn').forEach(btn=>{
+      btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
+    });
+  };
+
+  // Separate listener (does not touch the existing onAuthStateChanged call
+  // above) that loads the data this tab needs once the admin is logged in.
+  onAuthStateChanged(auth, user => {
+    if(user && user.email === ADMIN_EMAIL){
+      onValue(ref(db, 'portal/users'), snap => { usersData = snap.val() || {}; renderUsersTab(); });
+      onValue(ref(db, 'portal/activeSessions'), snap => { activeSessionsData = snap.val() || {}; renderUsersTab(); });
+      onValue(ref(db, 'portal/loginActivity'), snap => { loginActivityData = snap.val() || {}; renderUsersTab(); });
+      onValue(ref(db, 'portal/deviceRollMap'), snap => { deviceRollMapData = snap.val() || {}; renderUsersTab(); });
+    }
+  });
+})();
 
 </script>
 </body>
