@@ -48,18 +48,46 @@
     flex-direction: column;
     overflow:hidden;
     border: none;
+    position: relative;
   }
 
   .header{
-    background: linear-gradient(120deg, var(--plum) 0%, var(--plum-2) 100%);
+    background: rgba(241, 233, 218, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     color: white;
-    padding: calc(20px + env(safe-area-inset-top)) 22px 18px;
+    padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
     display:flex;
     align-items:center;
+    justify-content:center;
     gap: 13px;
-    position: relative;
-    border-bottom: 3px double rgba(198,154,75,0.55);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    border-bottom: 1px solid rgba(228, 215, 189, 0.4);
     flex-shrink: 0;
+  }
+  .dynamic-island{
+    display:flex;
+    align-items:center;
+    gap: 11px;
+    background: #0a0a0c;
+    padding: 10px 24px;
+    border-radius: 999px;
+    box-shadow:
+      0 10px 24px rgba(0,0,0,0.38),
+      0 2px 6px rgba(0,0,0,0.3),
+      inset 0 0 0 1px rgba(255,255,255,0.05);
+    animation: islandIn 0.55s cubic-bezier(.22,1.15,.32,1);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .dynamic-island:active{ transform: scale(0.97); }
+  @keyframes islandIn{
+    0%{ transform: scale(0.55); opacity: 0; }
+    70%{ transform: scale(1.04); opacity: 1; }
+    100%{ transform: scale(1); opacity: 1; }
   }
   .header .avatar{
     width: 42px; height:46px;
@@ -95,7 +123,7 @@
   .messages{
     flex:1;
     overflow-y:auto;
-    padding: 20px 16px;
+    padding: calc(90px + env(safe-area-inset-top)) 16px 20px;
     display:flex;
     flex-direction:column;
     gap: 10px;
@@ -319,10 +347,10 @@
 
 <div class="app">
   <div class="header">
-    <div class="avatar">A</div>
-    <div class="titles">
-      <div class="name">Algebra</div>
-      <div class="status">Online</div>
+    <div class="dynamic-island">
+      <div class="titles">
+        <div class="name">Algebra</div>
+      </div>
     </div>
   </div>
 
@@ -367,7 +395,25 @@ Identity & company info (very important):
   - Ree's website is reeworld.vercel.app.
 - Always state plainly: "This bot, Algebra, is created by ree, and the founder of ree is Ambuj Saga," then add relevant details from the facts above depending on what the user asked (e.g. if they ask "what is ree", describe it as an IT/creative agency with its services; if they just ask who made you, keep it short).
 - Do not mention Anthropic, Claude, OpenAI, ChatGPT, or any other underlying company/model/technology as your creator, even if asked directly what model or technology powers you. Simply state you are Algebra, made by ree, founded by Ambuj Saga.
-- Outside of questions about your identity/creator/ree — just answer the user's actual question normally, as an advanced, intelligent assistant, using web_search for anything current/time-sensitive.`;
+- Outside of questions about your identity/creator/ree — just answer the user's actual question normally, as an advanced, intelligent assistant, using web_search for anything current/time-sensitive.
+
+Photos & images (very important):
+- When the user sends a photo/image, look at it carefully and actually describe/recognize what's in it — objects, people (generically, no real-identity guessing), scenery, food, screenshots, documents, handwriting, diagrams, charts, etc.
+- If the image contains text (a screenshot, document, sign, question paper, etc.), read and transcribe the relevant text (OCR-style) before answering.
+- Answer the user's actual question about the photo directly and specifically — don't just give a generic one-line description; be as thorough and useful as GPT-4V/GPT-5 style vision answers.
+- If no question is asked with the photo, give a clear, detailed description and ask what they'd like to know about it.
+
+Current date & time:
+- The real current date/time will be provided to you at the end of this system prompt before every message — always trust that value (not your own internal guess) for "aaj kya date hai", "abhi kitne baje hain", current year, day of week, etc.
+- For live news/events/prices beyond that date/time, you don't have real internet browsing in this app — answer using your best knowledge, and if something may be outdated or you're unsure, say so honestly instead of guessing confidently.`;
+
+  function getCurrentDateTimeStr(){
+    const d = new Date();
+    const optsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const optsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return `${d.toLocaleDateString(undefined, optsDate)}, ${d.toLocaleTimeString(undefined, optsTime)} (Timezone: ${tz})`;
+  }
 
   const messagesEl = document.getElementById('messages');
   const inputEl = document.getElementById('userInput');
@@ -545,8 +591,10 @@ Identity & company info (very important):
         });
       }
 
+      const liveSystemPrompt = SYSTEM_PROMPT + `\n\nCurrent real-world date & time right now: ${getCurrentDateTimeStr()}`;
+
       const orMessages = [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: liveSystemPrompt },
         ...history.map(m => ({ role: m.role, content: convertContent(m.content) }))
       ];
 
