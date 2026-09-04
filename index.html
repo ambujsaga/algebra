@@ -48,34 +48,42 @@
     flex-direction: column;
     overflow:hidden;
     border: none;
-    position: relative; /* Added for absolute header positioning */
+  }
+
+  .app{ position: relative; }
+
+  /* Frosted strip that sits behind the floating island. It is what blurs
+     messages as they scroll up and pass underneath — the island itself
+     stays a plain solid pill, only this backdrop layer does the blurring. */
+  .header-blur{
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: calc(112px + env(safe-area-inset-top));
+    backdrop-filter: blur(16px) saturate(1.1);
+    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    background: linear-gradient(180deg, rgba(241,233,218,0.55) 0%, rgba(241,233,218,0.28) 55%, rgba(241,233,218,0) 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 92%);
+    mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 92%);
+    z-index: 15;
+    pointer-events: none;
   }
 
   .header{
-    /* Background with opacity for the blur effect */
-    background:
-      radial-gradient(circle at 15% 0%, rgba(198,154,75,0.14), transparent 45%),
-      linear-gradient(180deg, rgba(241, 233, 218, 0.75) 0%, rgba(230, 220, 198, 0.65) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    
+    background: transparent;
     color: white;
     padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
     display:flex;
     align-items:center;
     justify-content:center;
     gap: 13px;
-    
-    /* Absolute positioning to float over messages */
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 100;
-    
+    top: 0; left: 0; right: 0;
     border-bottom: none;
     flex-shrink: 0;
+    z-index: 20;
+    pointer-events: none;
   }
+  .header .dynamic-island{ pointer-events: auto; }
   .dynamic-island{
     display:flex;
     align-items:center;
@@ -130,14 +138,15 @@
   .messages{
     flex:1;
     overflow-y:auto;
-    /* Added 90px top padding so content begins below the absolute header */
-    padding: 90px 16px 20px; 
+    padding: calc(88px + env(safe-area-inset-top)) 16px 20px;
     display:flex;
     flex-direction:column;
     gap: 10px;
     background:
       radial-gradient(circle at 85% 0%, rgba(198,154,75,0.08), transparent 40%),
       var(--parchment);
+    position: relative;
+    z-index: 1;
   }
 
   .row{ display:flex; }
@@ -164,6 +173,52 @@
     border: 1px solid var(--border);
     border-left: 3px solid var(--brass);
   }
+
+  /* Links inside bubbles — always shown underlined + tappable, open in new tab */
+  .bubble a{
+    color: var(--brass-dark);
+    font-weight: 600;
+    text-decoration: underline;
+    word-break: break-word;
+  }
+  .row.user .bubble a{ color: #e6c579; }
+
+  /* Inline code + fenced code blocks inside bot bubbles */
+  .bubble code{
+    background: rgba(36,26,53,0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, "Courier New", monospace;
+    font-size: 13px;
+  }
+  .bubble pre{
+    background: var(--plum);
+    color: #f1e9da;
+    padding: 12px 14px;
+    border-radius: 10px;
+    overflow-x: auto;
+    margin: 8px 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .bubble pre code{
+    background: transparent;
+    padding: 0;
+    color: inherit;
+  }
+
+  /* "More" continuation link for chunked long answers */
+  .more-link{
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--brass-dark);
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    border-bottom: 1px dashed var(--brass-dark);
+  }
+  .more-link:hover{ color: var(--brass); border-color: var(--brass); }
 
   .img-bubble{
     padding: 4px;
@@ -354,6 +409,7 @@
 <body>
 
 <div class="app">
+  <div class="header-blur"></div>
   <div class="header">
     <div class="dynamic-island">
       <div class="titles">
@@ -410,6 +466,18 @@ Photos & images (very important):
 - If the image contains text (a screenshot, document, sign, question paper, etc.), read and transcribe the relevant text (OCR-style) before answering.
 - Answer the user's actual question about the photo directly and specifically — don't just give a generic one-line description; be as thorough and useful as GPT-4V/GPT-5 style vision answers.
 - If no question is asked with the photo, give a clear, detailed description and ask what they'd like to know about it.
+
+Time-awareness — past, present & future (very important):
+- You always know the exact current date/time (given to you at the end of this prompt) — actively use it for anything about today, this week, "kal/parso/pichhle hafte/agle mahine", ages, anniversaries, countdowns, how many days left/passed, etc. Reason forward and backward from that date confidently.
+- Festivals & current happenings: for festivals/holidays that shift every year on the lunar or regional calendar (Diwali, Holi, Eid, Rakhi, Navratri, Chhath, etc.), work out the date nearest to the given current date using your knowledge, tell the user clearly, and add a short note that it's your best estimate and worth a quick local check since you don't have live internet browsing here.
+- For anything genuinely "live" (today's exact news, live scores, current stock/crypto price), be upfront that you can't fetch live data in this app, then still give the most useful, relevant knowledge/context you can.
+
+Links, formatting, code & math (very important):
+- Whenever you mention a link, always write the full plain URL (https://...) on its own — the app automatically turns any plain URL into a clickable hyperlink. Never use markdown link syntax like [text](url) and never describe a link without giving the actual URL.
+- For any code, always use triple-backtick fenced code blocks with the language name right after the opening backticks (e.g. \`\`\`python ... \`\`\`), so it renders as proper formatted code in the app.
+- For math and calculations, always show clear step-by-step working (given/formula → substitution → working → final answer), using plain notation (e.g. x^2, sqrt(x), 3/4, pi) since special math symbols may not render correctly.
+- Use **bold** sparingly around key terms, results, or final answers to aid readability.
+- The app automatically splits long replies into readable chunks with a "More" button the user taps to keep reading — so always answer as completely and thoroughly as the question deserves; never artificially cut an answer short or tell the user to ask for more.
 
 Current date & time:
 - The real current date/time will be provided to you at the end of this system prompt before every message — always trust that value (not your own internal guess) for "aaj kya date hai", "abhi kitne baje hain", current year, day of week, etc.
@@ -471,12 +539,104 @@ Current date & time:
     return `${h}:${m} ${ampm}`;
   }
 
+  // ---- Lightweight markdown-ish renderer: fenced code, inline code, bold, auto-hyperlinks ----
+  function escapeHtml(s){
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function renderMarkdownLite(text){
+    if(text == null) return '';
+    const codeBlocks = [];
+    // Pull out ```lang\ncode``` fenced blocks first so nothing inside them gets escaped-twice or linkified
+    let working = String(text).replace(/```([a-zA-Z0-9+#.-]*)\n?([\s\S]*?)```/g, (m, lang, code) => {
+      const idx = codeBlocks.length;
+      codeBlocks.push(`<pre><code>${escapeHtml(code.replace(/\n$/, ''))}</code></pre>`);
+      return `\u0000CODEBLOCK${idx}\u0000`;
+    });
+
+    let escaped = escapeHtml(working);
+
+    // inline `code`
+    escaped = escaped.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    // **bold**
+    escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    // auto-hyperlink plain URLs
+    escaped = escaped.replace(/(https?:\/\/[^\s<]+)/g, (m) => {
+      const clean = m.replace(/[).,!?;:]+$/, '');
+      const trailing = m.slice(clean.length);
+      return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${trailing}`;
+    });
+
+    // restore fenced code blocks
+    escaped = escaped.replace(/\u0000CODEBLOCK(\d+)\u0000/g, (m, idx) => codeBlocks[Number(idx)]);
+    return escaped;
+  }
+
+  // Splits long plain-text answers into ~200-500 char reader-friendly chunks,
+  // breaking on paragraph/sentence/word boundaries where possible.
+  function splitIntoChunks(text, minLen = 200, maxLen = 500){
+    const chunks = [];
+    let remaining = text;
+    while(remaining.length > maxLen){
+      const slice = remaining.slice(0, maxLen);
+      let breakIdx = -1;
+      let idx = slice.lastIndexOf('\n\n');
+      if(idx >= minLen) breakIdx = idx + 2;
+      if(breakIdx === -1){
+        idx = slice.lastIndexOf('. ');
+        if(idx >= minLen) breakIdx = idx + 2;
+      }
+      if(breakIdx === -1){
+        idx = slice.lastIndexOf('\n');
+        if(idx >= minLen) breakIdx = idx + 1;
+      }
+      if(breakIdx === -1){
+        idx = slice.lastIndexOf(' ');
+        if(idx >= minLen) breakIdx = idx + 1;
+      }
+      if(breakIdx === -1) breakIdx = maxLen;
+      chunks.push(remaining.slice(0, breakIdx).trimEnd());
+      remaining = remaining.slice(breakIdx).trimStart();
+    }
+    if(remaining) chunks.push(remaining);
+    return chunks;
+  }
+
   function addBubble(role, text){
     const row = document.createElement('div');
     row.className = 'row ' + (role === 'user' ? 'user' : 'bot');
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.textContent = text;
+
+    const hasCodeFence = /```/.test(text || '');
+
+    if(role === 'bot' && !hasCodeFence && String(text || '').length > 500){
+      // Long plain-text bot answer: show first chunk + tap-to-continue "More" link
+      const chunks = splitIntoChunks(String(text));
+      const contentSpan = document.createElement('span');
+      bubble.appendChild(contentSpan);
+      const moreBtn = document.createElement('a');
+      moreBtn.className = 'more-link';
+      moreBtn.textContent = 'More →';
+      let shown = 0;
+      function revealNext(){
+        contentSpan.innerHTML += (shown > 0 ? ' ' : '') + renderMarkdownLite(chunks[shown]);
+        shown++;
+        if(shown >= chunks.length){
+          moreBtn.remove();
+        }
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+      moreBtn.addEventListener('click', revealNext);
+      revealNext();
+      bubble.appendChild(moreBtn);
+    } else {
+      bubble.innerHTML = renderMarkdownLite(text);
+    }
+
     row.appendChild(bubble);
     const meta = document.createElement('div');
     meta.className = 'meta';
@@ -527,7 +687,7 @@ Current date & time:
     if(caption && caption.trim()){
       const cap = document.createElement('div');
       cap.className = 'cap';
-      cap.textContent = caption;
+      cap.innerHTML = renderMarkdownLite(caption);
       bubble.appendChild(cap);
     }
 
