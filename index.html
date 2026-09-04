@@ -301,6 +301,37 @@
   }
   .row.user .meta{ text-align:right; }
 
+  /* WhatsApp-style timestamp shown INSIDE the bubble (bottom-right),
+     text wraps around it since it's floated within the pre-wrap bubble. */
+  .time-inline{
+    float: right;
+    clear: both;
+    margin-left: 8px;
+    margin-top: 3px;
+    font-size: 10.5px;
+    line-height: 1;
+    color: var(--muted);
+    opacity: 0.75;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .row.user .bubble .time-inline{
+    color: rgba(245,239,227,0.7);
+    display: block;
+    float: none;
+    text-align: right;
+    margin-top: 4px;
+    margin-left: 0;
+  }
+
+  /* Variant for image bubbles: sits under the thumbnail/caption, right-aligned */
+  .img-bubble .time-inline{
+    display: block;
+    float: none;
+    text-align: right;
+    padding: 4px 8px 2px;
+  }
+
   .typing{
     display:flex; gap:4px; align-items:center; padding: 4px 2px;
   }
@@ -423,7 +454,7 @@
 
   <div class="messages" id="messages">
     <div class="row bot">
-      <div class="bubble">Hi! I'm Algebra — an advanced and intelligent AI assistant. Ask me anything. 👋</div>
+      <div class="bubble">Hi! I'm Algebra — an advanced and intelligent AI assistant. Ask me anything. 👋<span class="time-inline" id="welcomeTime"></span></div>
     </div>
   </div>
 
@@ -450,6 +481,8 @@
 </div>
 
 <script>
+  // ⚠️ TESTING ONLY — this key is exposed in plain client-side JS.
+  // Never host this file publicly or push it to a public repo like this.
   const OPENROUTER_API_KEY = "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";
   const FREE_MODEL = "openrouter/free"; // auto-picks a working free model, avoids "invalid model" errors
 
@@ -596,6 +629,11 @@ Current date & time:
     return `${h}:${m} ${ampm}`;
   }
 
+  (function initWelcomeTime(){
+    const el = document.getElementById('welcomeTime');
+    if(el) el.textContent = nowTime();
+  })();
+
   // ---- Lightweight markdown-ish renderer: fenced code, inline code, bold, auto-hyperlinks ----
   function escapeHtml(s){
     return String(s)
@@ -694,11 +732,12 @@ Current date & time:
       bubble.innerHTML = renderMarkdownLite(text);
     }
 
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'time-inline';
+    timeSpan.textContent = nowTime();
+    bubble.appendChild(timeSpan);
+
     row.appendChild(bubble);
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.textContent = nowTime();
-    row.appendChild(meta);
     messagesEl.appendChild(row);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return row;
@@ -748,11 +787,12 @@ Current date & time:
       bubble.appendChild(cap);
     }
 
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'time-inline';
+    timeSpan.textContent = nowTime();
+    bubble.appendChild(timeSpan);
+
     row.appendChild(bubble);
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.textContent = nowTime();
-    row.appendChild(meta);
     messagesEl.appendChild(row);
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
