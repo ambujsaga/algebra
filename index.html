@@ -743,6 +743,46 @@ Current date & time:
     return row;
   }
 
+  // Clean, user-facing error bubble — never shows the raw API/network error.
+  // Tapping "Try Again" refills the composer (and re-attaches any image)
+  // with the exact message that failed, so the user doesn't have to retype it.
+  function addRetryBubble(retryText, retryImage){
+    const row = document.createElement('div');
+    row.className = 'row bot';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = 'Something went wrong.';
+    bubble.appendChild(msgSpan);
+
+    const retryBtn = document.createElement('a');
+    retryBtn.className = 'more-link';
+    retryBtn.style.display = 'block';
+    retryBtn.textContent = 'Try Again ↻';
+    retryBtn.addEventListener('click', () => {
+      inputEl.value = retryText || '';
+      if(retryImage){
+        pendingImage = retryImage;
+        attachThumb.src = retryImage.dataUrl;
+        attachName.textContent = retryImage.name;
+        attachPreview.style.display = 'flex';
+      }
+      inputEl.focus();
+    });
+    bubble.appendChild(retryBtn);
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'time-inline';
+    timeSpan.textContent = nowTime();
+    bubble.appendChild(timeSpan);
+
+    row.appendChild(bubble);
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return row;
+  }
+
   function openImageOverlay(dataUrl){
     const overlay = document.createElement('div');
     overlay.className = 'img-overlay';
@@ -820,6 +860,11 @@ Current date & time:
 
     if(!text && !image) return;
 
+    // Snapshot of exactly what the user sent, kept aside so it can be
+    // restored into the composer if this attempt fails (see addRetryBubble).
+    const retryText = text;
+    const retryImage = image ? { base64: image.base64, mediaType: image.mediaType, name: image.name, dataUrl: image.dataUrl } : null;
+
     if(image){
       addImageBubble('user', image.dataUrl, text);
       const content = [
@@ -882,7 +927,9 @@ Current date & time:
         if(data && data.choices && data.choices[0] && data.choices[0].message){
           return data.choices[0].message.content || "Sorry, something went wrong. Please try again.";
         } else if(data && data.error){
-          return "API error: " + (data.error.message || "unknown error");
+          // Raw API error detail is intentionally not shown to the user —
+          // just throw so the outer catch shows a clean "Try Again" bubble.
+          throw new Error(data.error.message || "unknown error");
         }
         return "Sorry, something went wrong. Please try again.";
       }
@@ -908,7 +955,7 @@ Current date & time:
       history.push({ role: 'assistant', content: replyText });
     }catch(err){
       removeTyping();
-      addBubble('bot', "Connection error. Please try again.");
+      addRetryBubble(retryText, retryImage);
       console.error(err);
     }finally{
       sendBtn.disabled = false;
