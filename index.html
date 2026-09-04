@@ -48,25 +48,32 @@
     flex-direction: column;
     overflow:hidden;
     border: none;
-    position: relative;
+    position: relative; /* Added for absolute header positioning */
   }
 
   .header{
-    background: rgba(241, 233, 218, 0.75);
+    /* Background with opacity for the blur effect */
+    background:
+      radial-gradient(circle at 15% 0%, rgba(198,154,75,0.14), transparent 45%),
+      linear-gradient(180deg, rgba(241, 233, 218, 0.75) 0%, rgba(230, 220, 198, 0.65) 100%);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    
     color: white;
     padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
     display:flex;
     align-items:center;
     justify-content:center;
     gap: 13px;
+    
+    /* Absolute positioning to float over messages */
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 100;
-    border-bottom: 1px solid rgba(228, 215, 189, 0.4);
+    
+    border-bottom: none;
     flex-shrink: 0;
   }
   .dynamic-island{
@@ -123,7 +130,8 @@
   .messages{
     flex:1;
     overflow-y:auto;
-    padding: calc(90px + env(safe-area-inset-top)) 16px 20px;
+    /* Added 90px top padding so content begins below the absolute header */
+    padding: 90px 16px 20px; 
     display:flex;
     flex-direction:column;
     gap: 10px;
