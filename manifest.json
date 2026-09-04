@@ -1,6 +1,6 @@
 {
-  "name": "Penal",
-  "short_name": "Penal",
+  "name": "Algebra",
+  "short_name": "Algebra",
   "icons": [
     {
       "src": "logo.jpg?v=1.1",
@@ -15,8 +15,8 @@
       "purpose": "any"
     }
   ],
-  "start_url": "/mcq-admin712172.html",
+  "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#FFFFFF",
+  "background_color": "#C82752",
   "theme_color": "#FFFFFF"
 }
