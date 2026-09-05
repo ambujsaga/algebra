@@ -606,7 +606,7 @@
   // ⚠️ TESTING ONLY — this key is exposed in plain client-side JS.
   // Never host this file publicly or push it to a public repo like this.
   const OPENROUTER_API_KEY = "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";
-  const FREE_MODEL = "google/gemini-2.0-flash-exp:free"; // fully free Gemini model on OpenRouter
+  const FREE_MODEL = "openrouter/free"; // auto-picks a working free model, avoids "invalid model" errors
 
   const SYSTEM_PROMPT = `You are "Algebra", an extremely advanced, capable, and intelligent AI assistant — comparable in ability to the most advanced general-purpose AI chat assistants. Be helpful, thorough, accurate, and articulate across any topic: reasoning, coding, writing, math, general knowledge, and conversation. Match the language the user writes in (Hindi, Hinglish, or English).
 
