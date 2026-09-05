@@ -4,23 +4,20 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Algebra</title>
-  <link rel="icon" type="image/jpeg" href="logo.png?v=1.1">
-    <link rel="apple-touch-icon" sizes="192x192" href="logo.png?v=1.1">
-    <link rel="manifest" href="manifest.json">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
   :root{
     --plum: #241a35;
     --plum-2: #34243f;
-    --parchment: #f1e9da;
-    --brass: #c69a4b;
-    --brass-dark: #9f7830;
+    --parchment: #fbe6f0;
+    --brass: #e0559f;
+    --brass-dark: #b23d7a;
     --ink: #29202f;
     --muted: #8a7f8f;
     --bubble-user: #34243f;
-    --bubble-bot: #fffcf6;
-    --border: #e4d7bd;
+    --bubble-bot: #fff2f8;
+    --border: #f0c3dc;
   }
   *{box-sizing:border-box;}
   html,body{height:100%;margin:0;}
@@ -28,8 +25,8 @@
     font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
     background:
       repeating-linear-gradient(135deg, rgba(36,26,53,0.035) 0px, rgba(36,26,53,0.035) 1px, transparent 1px, transparent 14px),
-      radial-gradient(circle at 15% 0%, rgba(198,154,75,0.14), transparent 45%),
-      linear-gradient(180deg, var(--parchment) 0%, #e6dcc6 100%);
+      radial-gradient(circle at 15% 0%, rgba(224,85,159,0.14), transparent 45%),
+      linear-gradient(180deg, var(--parchment) 0%, #f0c9dd 100%);
     display:flex;
     align-items:stretch;
     justify-content:stretch;
@@ -107,10 +104,109 @@
     70%{ transform: scale(1.04); opacity: 1; }
     100%{ transform: scale(1); opacity: 1; }
   }
+
+  /* ---- Dynamic Island: "Algebra" fast fly-in text + feeling-based cat ---- */
+  #islandName{
+    display:inline-block;
+    will-change: transform, opacity;
+  }
+  #islandName.slide-in{
+    animation: islandTextFly 0.5s cubic-bezier(.19,1,.22,1);
+  }
+  @keyframes islandTextFly{
+    0%{ transform: translateX(-230px); opacity: 0; }
+    55%{ transform: translateX(12px); opacity: 1; }
+    100%{ transform: translateX(0); opacity: 1; }
+  }
+
+  .island-cat{
+    width: 30px;
+    height: 30px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    animation: catAppear 0.35s cubic-bezier(.22,1.15,.32,1);
+  }
+  @keyframes catAppear{
+    0%{ transform: scale(0.4); opacity: 0; }
+    100%{ transform: scale(1); opacity: 1; }
+  }
+  .island-cat svg{ width:100%; height:100%; display:block; overflow: visible; }
+  .island-cat *{ transform-box: fill-box; transform-origin: center; }
+
+  /* base idle motion */
+  .cat-tail{ animation: tailWagSlow 1.6s ease-in-out infinite; transform-origin: 50px 46px; }
+  .cat-eye-open{ animation: catBlink 3.2s ease-in-out infinite; }
+  .cat-brow{ opacity: 0; }
+  .mouth-frown{ display:none; }
+  .mouth-flat{ display:none; }
+  .mouth-open{ display:none; }
+  .eye-happy{ display:none; }
+
+  @keyframes tailWagSlow{
+    0%,100%{ transform: rotate(-10deg); }
+    50%{ transform: rotate(10deg); }
+  }
+  @keyframes tailWagFast{
+    0%,100%{ transform: rotate(-24deg); }
+    50%{ transform: rotate(24deg); }
+  }
+  @keyframes tailWagAngry{
+    0%,100%{ transform: rotate(-16deg); }
+    50%{ transform: rotate(16deg); }
+  }
+  @keyframes tailDroop{
+    0%,100%{ transform: rotate(6deg); }
+    50%{ transform: rotate(12deg); }
+  }
+  @keyframes catBlink{
+    0%,88%,100%{ transform: scaleY(1); }
+    92%{ transform: scaleY(0.1); }
+  }
+  @keyframes catBounceExcited{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-3px); }
+  }
+  @keyframes catShiverAngry{
+    0%,100%{ transform: translateX(0); }
+    25%{ transform: translateX(-1px); }
+    75%{ transform: translateX(1px); }
+  }
+
+  /* mood: happy */
+  .mood-happy .cat-tail{ animation-name: tailWagFast; animation-duration: 0.7s; }
+  .mood-happy .cat-eye-open{ display:none; }
+  .mood-happy .eye-happy{ display:block; }
+  .mood-happy .mouth-smile{ transform: scaleX(1.15); }
+
+  /* mood: sad */
+  .mood-sad .cat-tail{ animation-name: tailDroop; animation-duration: 2.2s; transform-origin: 50px 40px; }
+  .mood-sad .cat-eye-open{ transform: scaleY(0.45) translateY(2px); animation: none; }
+  .mood-sad .mouth-smile{ display:none; }
+  .mood-sad .mouth-frown{ display:block; }
+  .mood-sad .cat-ear-l, .mood-sad .cat-ear-r{ transform: scaleY(0.7) translateY(3px); }
+
+  /* mood: angry */
+  .mood-angry .cat-tail{ animation-name: tailWagAngry; animation-duration: 0.35s; }
+  .mood-angry .cat-eye-open{ transform: scaleY(0.5); animation: none; }
+  .mood-angry .cat-brow{ opacity: 1; }
+  .mood-angry .mouth-smile{ display:none; }
+  .mood-angry .mouth-flat{ display:block; }
+  .mood-angry svg{ animation: catShiverAngry 0.25s linear infinite; }
+
+  /* mood: excited */
+  .mood-excited .cat-tail{ animation-name: tailWagFast; animation-duration: 0.4s; }
+  .mood-excited .cat-eye-open{ transform: scale(1.25); animation: none; }
+  .mood-excited .mouth-smile{ display:none; }
+  .mood-excited .mouth-open{ display:block; }
+  .mood-excited svg{ animation: catBounceExcited 0.5s ease-in-out infinite; }
+
+  /* mood: neutral / thinking (default) — gentle idle sway + blink only */
+
   .header .avatar{
     width: 42px; height:46px;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    background: linear-gradient(150deg, var(--brass), #e6c579 60%, var(--brass-dark));
+    background: linear-gradient(150deg, var(--brass), #f492c4 60%, var(--brass-dark));
     display:flex; align-items:center; justify-content:center;
     font-weight: 700;
     font-family: "Fraunces", serif;
@@ -128,14 +224,14 @@
   .header .titles .status{ font-size: 12px; color: #cbb8d6; display:flex; align-items:center; gap:6px;}
   .header .titles .status::before{
     content:""; width:7px; height:7px; border-radius:50%; background: var(--brass);
-    box-shadow: 0 0 0 0 rgba(198,154,75,0.6);
+    box-shadow: 0 0 0 0 rgba(224,85,159,0.6);
     animation: pulseDot 1.8s infinite;
     display:inline-block;
   }
   @keyframes pulseDot{
-    0%{ box-shadow: 0 0 0 0 rgba(198,154,75,0.55); }
-    70%{ box-shadow: 0 0 0 6px rgba(198,154,75,0); }
-    100%{ box-shadow: 0 0 0 0 rgba(198,154,75,0); }
+    0%{ box-shadow: 0 0 0 0 rgba(224,85,159,0.55); }
+    70%{ box-shadow: 0 0 0 6px rgba(224,85,159,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(224,85,159,0); }
   }
 
   .messages{
@@ -146,7 +242,7 @@
     flex-direction:column;
     gap: 10px;
     background:
-      radial-gradient(circle at 85% 0%, rgba(198,154,75,0.08), transparent 40%),
+      radial-gradient(circle at 85% 0%, rgba(224,85,159,0.08), transparent 40%),
       var(--parchment);
     position: relative;
     z-index: 1;
@@ -184,7 +280,7 @@
     text-decoration: underline;
     word-break: break-word;
   }
-  .row.user .bubble a{ color: #e6c579; }
+  .row.user .bubble a{ color: #f492c4; }
 
   /* Inline code + fenced code blocks inside bot bubbles */
   .bubble code{
@@ -240,7 +336,7 @@
     border-radius: 10px;
     overflow: hidden;
     cursor: zoom-in;
-    background: #ddd0ae;
+    background: #f3cfe2;
   }
   .thumb-wrap img{
     width: 100%;
@@ -448,9 +544,32 @@
 <div class="app">
   <div class="header-blur"></div>
   <div class="header">
-    <div class="dynamic-island">
+    <div class="dynamic-island" id="dynamicIsland">
       <div class="titles">
-        <div class="name">Algebra</div>
+        <div class="name" id="islandName">Algebra</div>
+      </div>
+      <div class="island-cat" id="islandCat" style="display:none;">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <path class="cat-tail" d="M50 46 C 62 46, 63 32, 53 28" stroke="#e0559f" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <path class="cat-ear-l" d="M15 22 L8 6 L27 17 Z" fill="#f5b8d6"/>
+          <path class="cat-ear-r" d="M49 22 L56 6 L37 17 Z" fill="#f5b8d6"/>
+          <circle cx="32" cy="35" r="21" fill="#fdeef7"/>
+          <path class="cat-brow" d="M17 27 L25 30" stroke="#241a35" stroke-width="2" stroke-linecap="round"/>
+          <path class="cat-brow" d="M47 27 L39 30" stroke="#241a35" stroke-width="2" stroke-linecap="round"/>
+          <circle class="cat-eye-open" cx="23" cy="33" r="3.2" fill="#241a35"/>
+          <circle class="cat-eye-open" cx="41" cy="33" r="3.2" fill="#241a35"/>
+          <path class="eye-happy" d="M19 34 Q23 29 27 34" stroke="#241a35" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <path class="eye-happy" d="M37 34 Q41 29 45 34" stroke="#241a35" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <path d="M30 39 L34 39 L32 42 Z" fill="#e0559f"/>
+          <path class="mouth-smile" d="M32 42 Q27 47 21 43 M32 42 Q37 47 43 43" stroke="#241a35" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path class="mouth-frown" d="M32 44 Q27 40 22 43 M32 44 Q37 40 42 43" stroke="#241a35" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path class="mouth-flat" d="M24 43 L40 43" stroke="#241a35" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <ellipse class="mouth-open" cx="32" cy="45" rx="6" ry="4.5" fill="#241a35"/>
+          <line class="cat-whisker" x1="9" y1="35" x2="19" y2="34" stroke="#cbb8d6" stroke-width="1.3"/>
+          <line class="cat-whisker" x1="9" y1="40" x2="19" y2="39" stroke="#cbb8d6" stroke-width="1.3"/>
+          <line class="cat-whisker" x1="55" y1="35" x2="45" y2="34" stroke="#cbb8d6" stroke-width="1.3"/>
+          <line class="cat-whisker" x1="55" y1="40" x2="45" y2="39" stroke="#cbb8d6" stroke-width="1.3"/>
+        </svg>
       </div>
     </div>
   </div>
@@ -511,6 +630,12 @@ Web search (very important):
 - Once you receive search results back, answer normally and naturally in your own words — don't mention that you searched, don't say "based on search results", just answer like you already knew it.
 - For normal/general knowledge questions that don't need current info, answer directly as before — don't search unnecessarily.
 
+News, current events & timelines (very important):
+- Your search results come in two parts when available: "Dated news results" (each item has a source name and publish date/time attached) and "General web results" (background/reference info, undated). Use the dates on the news items to reason precisely about how recent or old each piece of information is.
+- For anything news-related — "aaj ki khabar", "latest news on X", "what's happening with X right now", breaking events, scores, prices, market moves — lean on the dated news items and, when useful, mention roughly how recent the news is (e.g. "as of a few hours ago", "earlier today", "this week") based on the given publish dates, without inventing a date that wasn't in the results.
+- For "current se lekar past tak" style questions — a running story, how something has evolved, a timeline, "iske peeche kya history hai", "pehle kya hua tha" — synthesize both the news items (for the latest developments) and the general web results (for background/older context) into one clear chronological picture, most recent first or oldest-to-newest depending on what reads more naturally for the question.
+- If the dated results only cover the present and the user also wants older/historical context, it's fine to run a second, more specific SEARCH: query (e.g. adding a year, "history", or "timeline" to the query) once you get the first results back, instead of guessing.
+
 Photos & images (very important):
 - When the user sends a photo/image, look at it carefully and actually describe/recognize what's in it — objects, people (generically, no real-identity guessing), scenery, food, screenshots, documents, handwriting, diagrams, charts, etc.
 - If the image contains text (a screenshot, document, sign, question paper, etc.), read and transcribe the relevant text (OCR-style) before answering.
@@ -550,6 +675,8 @@ Current date & time:
   const attachThumb = document.getElementById('attachThumb');
   const attachName = document.getElementById('attachName');
   const attachRemove = document.getElementById('attachRemove');
+  const islandNameEl = document.getElementById('islandName');
+  const islandCatEl = document.getElementById('islandCat');
 
   let history = [];
   let pendingImage = null; // { base64, mediaType, name }
@@ -581,9 +708,18 @@ Current date & time:
   });
 
   // ---- Web search (no API key needed) ----
-  // Uses DuckDuckGo's free HTML results page, fetched through a public CORS
-  // proxy (since browsers can't fetch duckduckgo.com directly cross-origin),
+  // Uses DuckDuckGo's free HTML results pages, fetched through public CORS
+  // proxies (since browsers can't fetch duckduckgo.com directly cross-origin),
   // then parses the returned HTML for titles/snippets/links.
+  //
+  // Two independent points of failure exist here, so both are covered:
+  // 1) Free CORS proxies (allorigins etc.) are individually unreliable —
+  //    they go down or rate-limit without warning.
+  // 2) DuckDuckGo's main HTML page sometimes serves an anti-bot page to
+  //    proxy traffic; its "lite" page is a simpler, less-blocked fallback.
+  // Every (target page) x (proxy) combination is tried in turn; we only
+  // give up and tell the model to answer from its own knowledge if every
+  // single combination fails.
   function extractRealUrl(href){
     try{
       if(href.startsWith('//')) href = 'https:' + href;
@@ -595,32 +731,130 @@ Current date & time:
     }
   }
 
-  async function webSearch(query){
+  const CORS_PROXIES = [
+    (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+    (url) => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url),
+    (url) => "https://corsproxy.io/?url=" + encodeURIComponent(url)
+  ];
+
+  async function fetchWithTimeout(url, ms = 7000){
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
     try{
-      const targetUrl = "https://html.duckduckgo.com/html/?q=" + encodeURIComponent(query);
-      const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetUrl);
-      const resp = await fetch(proxyUrl);
-      const html = await resp.text();
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-
-      const results = [];
-      const items = doc.querySelectorAll('.result');
-      items.forEach((item) => {
-        if(results.length >= 5) return;
-        const titleEl = item.querySelector('.result__title a, a.result__a');
-        if(!titleEl) return;
-        const snippetEl = item.querySelector('.result__snippet');
-        const title = titleEl.textContent.trim();
-        const link = extractRealUrl(titleEl.getAttribute('href') || '');
-        const snippet = snippetEl ? snippetEl.textContent.trim() : '';
-        if(title) results.push(`${results.length + 1}. ${title}\n${snippet}\n${link}`);
-      });
-
-      return results.length ? results.join('\n\n') : "No results found for that search.";
-    }catch(err){
-      console.error('webSearch error:', err);
-      return "Search request failed (network/proxy error) — answer using your own knowledge instead.";
+      return await fetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
     }
+  }
+
+  function parseDuckDuckGoHtml(html){
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const results = [];
+    const items = doc.querySelectorAll('.result');
+    items.forEach((item) => {
+      if(results.length >= 8) return;
+      const titleEl = item.querySelector('.result__title a, a.result__a');
+      if(!titleEl) return;
+      const snippetEl = item.querySelector('.result__snippet');
+      const title = titleEl.textContent.trim();
+      const link = extractRealUrl(titleEl.getAttribute('href') || '');
+      const snippet = snippetEl ? snippetEl.textContent.trim() : '';
+      if(title) results.push(`${results.length + 1}. ${title}\n${snippet}\n${link}`);
+    });
+    return results;
+  }
+
+  // Google News RSS — gives dated, source-attributed news items (title, publisher,
+  // publish date, link), which is what lets the model reason about "current vs
+  // past" news instead of just generic undated web snippets.
+  function parseGoogleNewsRss(xml){
+    const doc = new DOMParser().parseFromString(xml, 'text/xml');
+    const results = [];
+    const items = doc.querySelectorAll('item');
+    items.forEach((item) => {
+      if(results.length >= 8) return;
+      const title = (item.querySelector('title')?.textContent || '').trim();
+      const link = (item.querySelector('link')?.textContent || '').trim();
+      const pubDate = (item.querySelector('pubDate')?.textContent || '').trim();
+      const sourceEl = item.querySelector('source');
+      const source = sourceEl ? sourceEl.textContent.trim() : '';
+      if(!title) return;
+      const meta = [source, pubDate].filter(Boolean).join(' — ');
+      results.push(`${results.length + 1}. ${title}${meta ? ' (' + meta + ')' : ''}\n${link}`);
+    });
+    return results;
+  }
+
+  // DuckDuckGo's "lite" page has a plainer table markup — no JS, minimal
+  // styling — so it's flagged as a bot/scraper far less often than the
+  // full html.duckduckgo.com page.
+  function parseDuckDuckGoLite(html){
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const results = [];
+    const links = doc.querySelectorAll('a.result-link');
+    links.forEach((a) => {
+      if(results.length >= 8) return;
+      const title = a.textContent.trim();
+      if(!title) return;
+      const link = extractRealUrl(a.getAttribute('href') || '');
+      let snippet = '';
+      const parentRow = a.closest('tr');
+      const snippetRow = parentRow ? parentRow.nextElementSibling : null;
+      const snippetEl = snippetRow ? snippetRow.querySelector('.result-snippet') : null;
+      if(snippetEl) snippet = snippetEl.textContent.trim();
+      results.push(`${results.length + 1}. ${title}\n${snippet}\n${link}`);
+    });
+    return results;
+  }
+
+  const SEARCH_TARGETS = [
+    { build: (q) => "https://lite.duckduckgo.com/lite/?q=" + encodeURIComponent(q), parse: parseDuckDuckGoLite },
+    { build: (q) => "https://news.google.com/rss/search?q=" + encodeURIComponent(q) + "&hl=en-IN&gl=IN&ceid=IN:en", parse: parseGoogleNewsRss, label: "News" },
+    { build: (q) => "https://html.duckduckgo.com/html/?q=" + encodeURIComponent(q), parse: parseDuckDuckGoHtml }
+  ];
+
+  // Runs a single target (through each CORS proxy in turn) and returns its
+  // parsed results array, or null if every proxy for that target failed.
+  async function runSearchTarget(target, query){
+    const targetUrl = target.build(query);
+    for(const buildProxyUrl of CORS_PROXIES){
+      try{
+        const proxyUrl = buildProxyUrl(targetUrl);
+        const resp = await fetchWithTimeout(proxyUrl, 7000);
+        if(!resp.ok) continue; // this proxy failed, try the next one
+        const body = await resp.text();
+        if(!body || body.length < 200) continue; // suspiciously empty/blocked response
+        const results = target.parse(body);
+        if(results.length) return results;
+        // parsed fine but no results found (e.g. DDG anti-bot page) — try next combo
+      }catch(err){
+        console.error('webSearch combo failed, trying next:', err);
+      }
+    }
+    return null;
+  }
+
+  async function webSearch(query){
+    // Try the general web target first (fast, broad coverage).
+    const general = await runSearchTarget(SEARCH_TARGETS[0], query);
+
+    // Also pull dated news results in parallel-ish fashion so the model has
+    // both general/background info AND recency-stamped news items to reason
+    // "current vs past" from — this is what makes news/timeline questions work.
+    const news = await runSearchTarget(SEARCH_TARGETS[1], query);
+
+    if(general || news){
+      const parts = [];
+      if(news) parts.push("Dated news results:\n" + news.join('\n\n'));
+      if(general) parts.push("General web results:\n" + general.join('\n\n'));
+      return parts.join('\n\n---\n\n');
+    }
+
+    // Both primary targets failed — last-resort fallback.
+    const fallback = await runSearchTarget(SEARCH_TARGETS[2], query);
+    if(fallback) return "General web results:\n" + fallback.join('\n\n');
+
+    return "Search request failed (network/proxy error) — answer using your own knowledge instead.";
   }
 
   function nowTime(){
@@ -636,6 +870,59 @@ Current date & time:
     const el = document.getElementById('welcomeTime');
     if(el) el.textContent = nowTime();
   })();
+
+  // ---- Dynamic Island: fast "Algebra" fly-in text + feeling-based cat ----
+  let islandRevertTimer = null;
+
+  function triggerIslandTextSlide(){
+    if(!islandNameEl) return;
+    islandNameEl.classList.remove('slide-in');
+    void islandNameEl.offsetWidth; // force reflow so the animation restarts
+    islandNameEl.classList.add('slide-in');
+  }
+
+  function showIslandText(){
+    if(!islandNameEl || !islandCatEl) return;
+    islandCatEl.style.display = 'none';
+    islandCatEl.className = 'island-cat';
+    islandNameEl.style.display = '';
+    triggerIslandTextSlide();
+  }
+
+  function showIslandCat(mood){
+    if(!islandNameEl || !islandCatEl) return;
+    if(islandRevertTimer){ clearTimeout(islandRevertTimer); islandRevertTimer = null; }
+    islandNameEl.style.display = 'none';
+    islandCatEl.className = 'island-cat mood-' + (mood || 'neutral');
+    islandCatEl.style.display = 'flex';
+  }
+
+  function scheduleIslandRevert(){
+    if(islandRevertTimer) clearTimeout(islandRevertTimer);
+    islandRevertTimer = setTimeout(() => {
+      showIslandText();
+      islandRevertTimer = null;
+    }, 2000);
+  }
+
+  // Lightweight bilingual (Hindi/Hinglish + English) mood detector — decides
+  // which cat expression matches the "feel" of the chat text.
+  function detectMood(text){
+    if(!text) return 'neutral';
+    const t = String(text).toLowerCase();
+    const angryWords = ['gussa','angry','hate','irritat','stupid','bakwas','chutiya','pagal','ghatiya','bekar','nonsense','rude'];
+    const sadWords = ['sad','dukhi','upset','ro raha','rona','depress','udaas','pareshan','dard','hurt','lonely','akela','cry','miss you','heartbroken'];
+    const excitedWords = ['wow','omg','excited','yay','zabardast','shaandaar','mast','amazing','awesome','!!'];
+    const happyWords = ['thanks','thank you','great','love','haha','lol','achha','badhiya','shukriya','happy','khush','😊','😂','❤','🙏','good job','nice'];
+    if(angryWords.some(w => t.includes(w))) return 'angry';
+    if(sadWords.some(w => t.includes(w))) return 'sad';
+    if(excitedWords.some(w => t.includes(w))) return 'excited';
+    if(happyWords.some(w => t.includes(w))) return 'happy';
+    return 'neutral';
+  }
+
+  // Show the fast left-to-right "Algebra" fly-in the moment the app opens/refreshes.
+  triggerIslandTextSlide();
 
   // ---- Lightweight markdown-ish renderer: fenced code, inline code, bold, auto-hyperlinks ----
   function escapeHtml(s){
@@ -868,6 +1155,9 @@ Current date & time:
     const retryText = text;
     const retryImage = image ? { base64: image.base64, mediaType: image.mediaType, name: image.name, dataUrl: image.dataUrl } : null;
 
+    // Dynamic Island: swap "Algebra" text for the feeling-based cat the moment a message is sent.
+    showIslandCat(detectMood(text));
+
     if(image){
       addImageBubble('user', image.dataUrl, text);
       const content = [
@@ -956,6 +1246,8 @@ Current date & time:
       removeTyping();
       addBubble('bot', replyText);
       history.push({ role: 'assistant', content: replyText });
+      // Refresh the island cat's mood to reflect the feeling of the full exchange.
+      showIslandCat(detectMood((retryText || '') + ' ' + (replyText || '')));
     }catch(err){
       removeTyping();
       addRetryBubble(retryText, retryImage);
@@ -963,6 +1255,8 @@ Current date & time:
     }finally{
       sendBtn.disabled = false;
       inputEl.focus();
+      // Chat has stopped for this turn — after 2s, fly the "Algebra" text back in.
+      scheduleIslandRevert();
     }
   }
 
