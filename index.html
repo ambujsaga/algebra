@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>Algebra</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
@@ -20,7 +20,7 @@
     --border: #f0c3dc;
   }
   *{box-sizing:border-box;}
-  html,body{height:100%;margin:0;}
+  html,body{height:100%;margin:0; touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;}
   body{
     font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
     background:
@@ -133,6 +133,68 @@
   }
   .island-cat svg{ width:100%; height:100%; display:block; overflow: visible; }
   .island-cat *{ transform-box: fill-box; transform-origin: center; }
+
+  /* ---- Cat wandering inside the Dynamic Island (new, additive) ---- */
+  /* Widens/heightens only while the cat is showing (text is hidden then),
+     so the island itself gently "expands" like a real Dynamic Island. */
+  .island-cat.is-walking{
+    width: 68px;
+    height: 34px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 17px;
+    justify-content: flex-start;
+  }
+  .cat-walk-wrap{
+    width: 32px;
+    height: 34px;
+    flex-shrink: 0;
+    animation: catWalkGentle 4.6s ease-in-out infinite;
+  }
+  .cat-walk-wrap svg{ width:100%; height:100%; display:block; overflow:visible; }
+  .cat-walk-wrap *{ transform-box: fill-box; transform-origin: center; }
+
+  @keyframes catWalkGentle{
+    0%, 100%{ transform: translateX(0) scaleX(1); }
+    45%{ transform: translateX(34px) scaleX(1); }
+    50%{ transform: translateX(34px) scaleX(-1); }
+    95%{ transform: translateX(0) scaleX(-1); }
+  }
+  @keyframes catWalkBouncy{
+    0%, 100%{ transform: translateX(0) scaleX(1) translateY(0); }
+    22%{ transform: translateX(17px) scaleX(1) translateY(-2px); }
+    45%{ transform: translateX(34px) scaleX(1) translateY(0); }
+    50%{ transform: translateX(34px) scaleX(-1) translateY(0); }
+    72%{ transform: translateX(17px) scaleX(-1) translateY(-2px); }
+    95%{ transform: translateX(0) scaleX(-1) translateY(0); }
+  }
+  @keyframes catWalkTired{
+    0%, 100%{ transform: translateX(0) scaleX(1) translateY(0); }
+    48%{ transform: translateX(20px) scaleX(1) translateY(1px); }
+    50%{ transform: translateX(20px) scaleX(-1) translateY(1px); }
+    98%{ transform: translateX(0) scaleX(-1) translateY(0); }
+  }
+  @keyframes catPaceAngry{
+    0%, 100%{ transform: translateX(0) scaleX(1); }
+    48%{ transform: translateX(34px) scaleX(1); }
+    50%{ transform: translateX(34px) scaleX(-1); }
+    98%{ transform: translateX(0) scaleX(-1); }
+  }
+  .mood-happy .cat-walk-wrap{ animation-name: catWalkBouncy; animation-duration: 2.1s; }
+  .mood-excited .cat-walk-wrap{ animation-name: catWalkBouncy; animation-duration: 1.15s; }
+  .mood-sad .cat-walk-wrap{ animation-name: catWalkTired; animation-duration: 4.8s; }
+  .mood-angry .cat-walk-wrap{ animation-name: catPaceAngry; animation-duration: 0.9s; }
+
+  /* Simple 4-leg walk-cycle, layered under the existing mood/idle animations */
+  @keyframes legStepA{ 0%,100%{ transform: translateY(-1.4px) rotate(-4deg); } 50%{ transform: translateY(1.4px) rotate(4deg); } }
+  @keyframes legStepB{ 0%,100%{ transform: translateY(1.4px) rotate(4deg); } 50%{ transform: translateY(-1.4px) rotate(-4deg); } }
+  .cat-leg-fl, .cat-leg-br{ animation: legStepA 0.55s ease-in-out infinite; transform-origin: top center; }
+  .cat-leg-fr, .cat-leg-bl{ animation: legStepB 0.55s ease-in-out infinite; transform-origin: top center; }
+  .mood-excited .cat-leg-fl, .mood-excited .cat-leg-br{ animation-duration: 0.28s; }
+  .mood-excited .cat-leg-fr, .mood-excited .cat-leg-bl{ animation-duration: 0.28s; }
+  .mood-angry .cat-leg-fl, .mood-angry .cat-leg-br{ animation-duration: 0.22s; }
+  .mood-angry .cat-leg-fr, .mood-angry .cat-leg-bl{ animation-duration: 0.22s; }
+  .mood-sad .cat-leg-fl, .mood-sad .cat-leg-br, .mood-sad .cat-leg-fr, .mood-sad .cat-leg-bl{ animation-duration: 1.1s; }
 
   /* base idle motion */
   .cat-tail{ animation: tailWagSlow 1.6s ease-in-out infinite; transform-origin: 50px 46px; }
@@ -549,11 +611,35 @@
         <div class="name" id="islandName">Algebra</div>
       </div>
       <div class="island-cat" id="islandCat" style="display:none;">
-        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <div class="cat-walk-wrap">
+        <svg viewBox="0 0 64 88" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="furGrad" cx="35%" cy="28%" r="75%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#fdeef7"/>
+              <stop offset="100%" stop-color="#f3c9de"/>
+            </radialGradient>
+            <linearGradient id="furGradBody" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#fdeef7"/>
+              <stop offset="100%" stop-color="#f0bcd9"/>
+            </linearGradient>
+          </defs>
+          <!-- back paws (behind body, drawn first so front paws overlap) -->
+          <ellipse class="cat-leg cat-leg-bl" cx="24" cy="70" rx="4.6" ry="9" fill="#f3c9de"/>
+          <ellipse class="cat-leg cat-leg-br" cx="43" cy="70" rx="4.6" ry="9" fill="#f3c9de"/>
+          <ellipse class="cat-paw" cx="24" cy="80" rx="5" ry="3.4" fill="#fdeef7"/>
+          <ellipse class="cat-paw" cx="43" cy="80" rx="5" ry="3.4" fill="#fdeef7"/>
+          <!-- body -->
+          <ellipse class="cat-body" cx="32" cy="62" rx="18.5" ry="15" fill="url(#furGradBody)"/>
+          <!-- front paws (in front of body) -->
+          <ellipse class="cat-leg cat-leg-fl" cx="22" cy="72" rx="5" ry="10" fill="#fdeef7"/>
+          <ellipse class="cat-leg cat-leg-fr" cx="45" cy="72" rx="5" ry="10" fill="#fdeef7"/>
+          <ellipse class="cat-paw" cx="22" cy="83" rx="5.4" ry="3.6" fill="#ffffff"/>
+          <ellipse class="cat-paw" cx="45" cy="83" rx="5.4" ry="3.6" fill="#ffffff"/>
           <path class="cat-tail" d="M50 46 C 62 46, 63 32, 53 28" stroke="#e0559f" stroke-width="4.5" fill="none" stroke-linecap="round"/>
           <path class="cat-ear-l" d="M15 22 L8 6 L27 17 Z" fill="#f5b8d6"/>
           <path class="cat-ear-r" d="M49 22 L56 6 L37 17 Z" fill="#f5b8d6"/>
-          <circle cx="32" cy="35" r="21" fill="#fdeef7"/>
+          <circle cx="32" cy="35" r="21" fill="url(#furGrad)"/>
           <path class="cat-brow" d="M17 27 L25 30" stroke="#241a35" stroke-width="2" stroke-linecap="round"/>
           <path class="cat-brow" d="M47 27 L39 30" stroke="#241a35" stroke-width="2" stroke-linecap="round"/>
           <circle class="cat-eye-open" cx="23" cy="33" r="3.2" fill="#241a35"/>
@@ -570,6 +656,7 @@
           <line class="cat-whisker" x1="55" y1="35" x2="45" y2="34" stroke="#cbb8d6" stroke-width="1.3"/>
           <line class="cat-whisker" x1="55" y1="40" x2="45" y2="39" stroke="#cbb8d6" stroke-width="1.3"/>
         </svg>
+        </div>
       </div>
     </div>
   </div>
@@ -933,7 +1020,7 @@ Book knowledge — Guyton and Hall's "Textbook of Medical Physiology" (very impo
     if(!islandNameEl || !islandCatEl) return;
     if(islandRevertTimer){ clearTimeout(islandRevertTimer); islandRevertTimer = null; }
     islandNameEl.style.display = 'none';
-    islandCatEl.className = 'island-cat mood-' + (mood || 'neutral');
+    islandCatEl.className = 'island-cat is-walking mood-' + (mood || 'neutral');
     islandCatEl.style.display = 'flex';
   }
 
@@ -1309,6 +1396,16 @@ Book knowledge — Guyton and Hall's "Textbook of Medical Physiology" (very impo
   inputEl.addEventListener('keydown', (e) => {
     if(e.key === 'Enter') sendMessage();
   });
+
+  // ---- Page zoom lock (new, additive) ----
+  // Viewport meta + touch-action already block most zoom; these are extra
+  // safety nets for browsers (mainly iOS Safari) that still allow pinch/
+  // double-tap zoom despite the meta tag.
+  document.addEventListener('gesturestart', (e) => e.preventDefault());
+  document.addEventListener('gesturechange', (e) => e.preventDefault());
+  document.addEventListener('touchmove', (e) => {
+    if(e.touches && e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
 </script>
 
 </body>
