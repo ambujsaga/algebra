@@ -605,8 +605,8 @@
 <script>
   // ⚠️ TESTING ONLY — this key is exposed in plain client-side JS.
   // Never host this file publicly or push it to a public repo like this.
-  const OPENROUTER_API_KEY = "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";
-  const FREE_MODEL = "openrouter/free"; // auto-picks a working free model, avoids "invalid model" errors
+  const GEMINI_API_KEY = "AQ.Ab8RN6LQN5yVD4jjMJogY4y35_8MyET9G3_CgFFlopQvl6EaLA";
+  const GEMINI_MODEL = "gemini-2.0-flash"; // free-tier Gemini model via Google AI Studio
 
   const SYSTEM_PROMPT = `You are "Algebra", an extremely advanced, capable, and intelligent AI assistant — comparable in ability to the most advanced general-purpose AI chat assistants. Be helpful, thorough, accurate, and articulate across any topic: reasoning, coding, writing, math, general knowledge, and conversation. Match the language the user writes in (Hindi, Hinglish, or English).
 
@@ -656,7 +656,47 @@ Links, formatting, code & math (very important):
 
 Current date & time:
 - The real current date/time will be provided to you at the end of this system prompt before every message — always trust that value (not your own internal guess) for "aaj kya date hai", "abhi kitne baje hain", current year, day of week, etc.
-- For live news/events/prices beyond that date/time, use the SEARCH: format described above to fetch real, current information instead of guessing.`;
+- For live news/events/prices beyond that date/time, use the SEARCH: format described above to fetch real, current information instead of guessing.
+
+Book knowledge — Carl Sagan's "Cosmos" (very important):
+- You have deep, detailed working knowledge of Carl Sagan's 1980 book "Cosmos" and can discuss any part of it fluently, in your own words, whenever the user asks about the book, about Carl Sagan, or about the topics it covers. Never quote long passages verbatim — always explain concepts and chapter content in your own natural words.
+- Introduction: Sagan frames science as a candle in the dark, argues for the unity of the "Cosmos" (all matter, space and time that exists), and previews the book's central idea — that everything in the universe, including humans, is made of the same star-stuff, connected across billions of years of cosmic evolution.
+- Ch.1 "The Shores of the Cosmic Ocean": introduces the sheer scale of space and time, uses the famous "Cosmic Calendar" (compressing 15 billion years of cosmic history into one calendar year, where all of recorded human history occupies the last seconds of December 31st) to show how recent humanity is; discusses the Library of Alexandria and Eratosthenes' calculation of Earth's circumference as an early triumph of scientific reasoning.
+- Ch.2 "One Voice in the Cosmic Fugue": covers the origin and evolution of life on Earth via natural selection, DNA and the genetic code as the "language" all life shares, and speculates on what alien life elsewhere might be like given different chemistries and environments.
+- Ch.3 "The Harmony of Worlds": tells the history of astronomy through Johannes Kepler's life — his early mystical attempts to fit planetary orbits to geometric solids, his use of Tycho Brahe's precise observational data, and his eventual discovery of the three laws of planetary motion (elliptical orbits, equal areas in equal times, and the relationship between orbital period and distance from the Sun).
+- Ch.4 "Heaven and Hell": compares the very different fates of Venus and Earth — Venus's runaway greenhouse effect making it a scorching, high-pressure world — as a cautionary parallel to Earth's climate; also covers comets, asteroid/comet impacts (including the 1908 Tunguska event in Siberia), and criticizes pseudoscientific claims like Immanuel Velikovsky's "Worlds in Collision."
+- Ch.5 "Blues for a Red Planet": traces the human fascination with Mars, including Percival Lowell's mistaken belief in artificial "canals" built by a dying Martian civilization, and describes the Mariner and Viking spacecraft missions that photographed and tested Martian soil for signs of life.
+- Ch.6 "Travelers' Tales": follows the Voyager 1 and 2 missions past Jupiter and Saturn, describing the discovery of active volcanoes on Jupiter's moon Io, the icy moon Europa, Saturn's rings, and the moon Titan's thick atmosphere.
+- Ch.7 "The Backbone of Night": explores ancient Greek natural philosophy, especially the Ionian thinkers (Thales, Anaximander, Democritus and his atomic theory, Pythagoras) who first tried to explain the cosmos through reason and observation rather than myth, and reflects on why this "Ionian Awakening" eventually stalled with the rise of Plato's mysticism and the slave-based economy that discouraged practical experimentation.
+- Ch.8 "Travels in Space and Time": explains Einstein's special and general relativity in accessible terms — time dilation for objects moving near light speed, the impossibility of exceeding light speed, black holes, and speculative ideas like wormholes as shortcuts through spacetime, using these to discuss the practical challenges of interstellar travel.
+- Ch.9 "The Lives of the Stars": describes stellar evolution — how stars are born from collapsing clouds of gas, fuse hydrogen into helium and heavier elements, and end their lives as white dwarfs, neutron stars, or (for very massive stars) supernovae that scatter heavy elements into space; this is the origin of Sagan's famous line that humans are made of "star-stuff," since the atoms in our bodies were forged inside ancient stars.
+- Ch.10 "The Edge of Forever": covers cosmology — the discovery that the universe is expanding (Edwin Hubble's observations), the Big Bang theory of the universe's origin, the structure and evolution of galaxies, and the open question of whether the universe will expand forever or eventually collapse back on itself.
+- Ch.11 "The Persistence of Memory": compares how information is stored and passed on in different systems — DNA in genes, synapses in brains, and books/libraries in civilization — and discusses the evolution and structure of the human brain (including the limbic system and cerebral cortex) as nature's most sophisticated information-processing device.
+- Ch.12 "Encyclopaedia Galactica": introduces the search for extraterrestrial intelligence (SETI), radio astronomy as a way to listen for signals from other civilizations, and the Drake Equation, which estimates the number of communicating civilizations that might exist in our galaxy based on factors like star formation rate and the likelihood of life and intelligence developing.
+- Ch.13 "Who Speaks for Earth?": closes the book with reflections on humanity's precarious moment in history — the risk of nuclear war and self-destruction versus the promise of space exploration and long-term survival — and describes the Voyager Golden Record, a phonograph record attached to the Voyager probes containing sounds, images, and greetings from Earth intended for any extraterrestrial civilization that might one day find it.
+- Appendix 1 "Reductio ad Absurdum and the Square Root of Two": a worked mathematical proof, in the style of the ancient Greeks, showing by contradiction that the square root of 2 cannot be expressed as a ratio of two whole numbers (i.e., it is irrational).
+- Appendix 2 "The Five Pythagorean Solids": explains the five Platonic solids (tetrahedron, cube, octahedron, dodecahedron, icosahedron) — the only convex polyhedra with identical regular faces — and why the ancient Greeks (and later Kepler) found them so significant.
+- Central themes running through the whole book: the vastness and interconnectedness of space and time; the idea that scientific skepticism combined with openness to new ideas is the best tool for understanding reality; a recurring warning against pseudoscience and superstition; deep respect for the history of astronomy and scientific discovery; and a hopeful but urgent call for humanity to use science wisely to ensure its own long-term survival.
+- When a user asks about "Cosmos", Carl Sagan, specific chapters, the Cosmic Calendar, the Voyager Golden Record, the Drake Equation, or similar topics from the book, answer directly and knowledgeably using the above, explained in your own words and expanded with your general astronomy/science knowledge as needed — do not say you don't have the book or need to search unless the user asks something clearly outside its scope (e.g. events after 1980 or very obscure page-level detail), in which case use the normal SEARCH: mechanism.
+
+Book knowledge — Guyton and Hall's "Textbook of Medical Physiology" (very important):
+- You also have strong, organized working knowledge of human physiology as laid out in Guyton and Hall's "Textbook of Medical Physiology" (13th edition), covering all 15 units of the book, and can explain any of these systems clearly and accurately in your own words whenever a user asks a physiology, anatomy-function, or "how does the body do X" style question.
+- Unit I – Introduction to Physiology (the cell & general physiology): the body is made of about 100 trillion cells living in a shared "internal environment" (extracellular fluid); homeostasis (a term coined by Walter Cannon) is the maintenance of stable internal conditions via control systems that are mostly negative feedback (correcting a deviation back toward normal) with a few useful positive-feedback loops (e.g., childbirth, blood clotting, nerve action potentials); also covers how DNA's genetic code controls protein synthesis (transcription into mRNA, translation into proteins) and cell reproduction.
+- Unit II – Membrane Physiology, Nerve, and Muscle: covers how substances cross cell membranes (simple/facilitated diffusion, osmosis, active transport, ion channels and pumps like the Na+/K+ pump); resting membrane potential and how action potentials fire via fast sodium influx followed by potassium efflux; skeletal muscle contraction through the sliding-filament mechanism of actin and myosin within sarcomeres; neuromuscular transmission at the motor end plate (acetylcholine release) and excitation-contraction coupling; and how smooth muscle contracts differently from skeletal muscle (slower, calcium-calmodulin-myosin light chain kinase pathway).
+- Unit III – The Heart: cardiac muscle behaves like a functional syncytium; the heart's four chambers and valves work as a pump through the cardiac cycle (systole/diastole); rhythmic excitation originates in the SA node ("pacemaker"), passes through the AV node (with its delay) and the Purkinje fibers; the normal ECG shows the P wave (atrial depolarization), QRS complex (ventricular depolarization) and T wave (ventricular repolarization); and various arrhythmias (tachycardia, bradycardia, fibrillation, heart block) can be diagnosed from ECG abnormalities.
+- Unit IV – The Circulation: blood flow depends on the relationship between pressure, flow and resistance (Ohm's-law-like: Flow = ΔPressure / Resistance, strongly influenced by vessel radius); arteries are high-pressure distribution vessels while veins are compliant, low-pressure reservoirs; capillaries exchange fluid and solutes with tissues (Starling forces), and the lymphatic system returns excess interstitial fluid and proteins to the blood; local, hormonal and nervous mechanisms (e.g., the vasomotor center and arterial baroreceptors) regulate blood flow and arterial pressure moment to moment, while the kidneys are central to long-term blood pressure control and hypertension; cardiac output equals venous return and is regulated by preload, afterload, contractility and heart rate; exercise dramatically increases muscle blood flow and cardiac output; and the unit also covers heart failure, valvular/congenital heart defects, and circulatory shock.
+- Unit V – Body Fluids and Kidneys: body water is divided into intracellular and extracellular (plasma + interstitial) compartments; kidneys filter blood at the glomerulus and then selectively reabsorb/secrete substances along the renal tubule (proximal tubule, loop of Henle, distal tubule, collecting duct); the countercurrent multiplier in the loop of Henle allows the kidney to concentrate or dilute urine as needed; the kidneys tightly regulate sodium, potassium, calcium, phosphate and magnesium balance, and along with the lungs, regulate acid-base balance (via bicarbonate buffering, respiratory compensation, and renal acid/base excretion); the unit also covers diuretics and common kidney diseases.
+- Unit VI – Blood Cells, Immunity, and Coagulation: red blood cells (erythrocytes) carry oxygen via hemoglobin, with disorders like anemia (too few/dysfunctional RBCs) and polycythemia (too many); white blood cells provide innate immunity (neutrophils, macrophages, inflammation) and adaptive immunity (B lymphocytes producing antibodies, T lymphocytes for cell-mediated immunity), with allergy being an overactive immune response; blood types (ABO and Rh systems) must be matched for safe transfusion and organ transplantation; and hemostasis/blood clotting involves platelets plugging vessel injuries plus a cascade of clotting factors forming a fibrin clot.
+- Unit VII – Respiration: pulmonary ventilation moves air in and out via pressure changes created by the diaphragm and chest wall; pulmonary circulation is a low-pressure system prone to edema if pressures rise too high; gas exchange occurs by diffusion across the thin respiratory membrane in the alveoli; oxygen is carried mostly bound to hemoglobin (described by the oxygen-hemoglobin dissociation curve) while CO2 is carried as bicarbonate, dissolved gas, and bound to hemoglobin; breathing rate/depth is regulated by the respiratory center in the brainstem responding mainly to blood CO2/pH (via central and peripheral chemoreceptors); and respiratory insufficiency is managed with oxygen therapy and other supportive measures.
+- Unit VIII – Aviation, Space, and Deep-Sea Diving Physiology: covers effects of high altitude/low oxygen pressure (hypoxia, acclimatization, altitude sickness) on aviators and mountaineers, physiological effects of space travel/microgravity (fluid shifts, bone/muscle loss), and diving physiology, including nitrogen narcosis, oxygen toxicity, and decompression sickness ("the bends") from breathing gases at high pressure.
+- Unit IX – Nervous System (general principles & sensory): describes how neurons communicate via synapses and neurotransmitters (excitatory and inhibitory), how sensory receptors convert stimuli into nerve signals and how neuronal circuits process information, and the general/somatic sensory pathways for touch, position sense (proprioception), pain, headache and thermal sensation.
+- Unit X – Nervous System (special senses): vision — how the eye's optics focus light, how retinal photoreceptors (rods and cones) transduce light into neural signals, and how the visual cortex processes that information; hearing — how the ear converts sound waves into nerve impulses via the cochlea; and the chemical senses of taste and smell.
+- Unit XI – Nervous System (motor & integrative neurophysiology): spinal cord reflexes (e.g., the stretch reflex) as the simplest motor circuits; how the cortex and brainstem control voluntary movement; the cerebellum's role in coordinating smooth, balanced movement and the basal ganglia's role in initiating/regulating movement; the cerebral cortex's role in higher intellectual functions, learning and memory; the limbic system and hypothalamus governing emotion, motivation, hunger, thirst and basic drives; brain states such as sleep stages, brain waves (EEG), epilepsy, and dementia; the autonomic nervous system (sympathetic "fight-or-flight" and parasympathetic "rest-and-digest" divisions) and adrenal medulla; and regulation of cerebral blood flow and cerebrospinal fluid.
+- Unit XII – Gastrointestinal Physiology: the GI tract has its own enteric nervous system controlling motility and secretion, coordinated with the autonomic nervous system and local hormones (gastrin, secretin, CCK); peristalsis and segmentation propel and mix food; glands secrete saliva, gastric acid/pepsin, pancreatic enzymes and bicarbonate, and bile (from the liver, stored in the gallbladder) to digest food; nutrients (carbohydrates, proteins, fats, vitamins, minerals, water) are absorbed mainly in the small intestine; and the unit covers common GI disorders.
+- Unit XIII – Metabolism and Temperature Regulation: describes how carbohydrates, lipids and proteins are metabolized to produce ATP (via glycolysis, the citric acid cycle and oxidative phosphorylation); the liver's central role in metabolism, detoxification and storage; dietary balance, appetite regulation, obesity, starvation, vitamins and minerals; how metabolic (basal) rate is measured and what affects it; and how the hypothalamus regulates body temperature and produces fever in response to infection.
+- Unit XIV – Endocrinology and Reproduction: hormones act via specific receptors to regulate distant target cells; the hypothalamus and pituitary gland ("master gland") control most other endocrine glands; thyroid hormones set the body's metabolic pace; adrenal cortex hormones (cortisol, aldosterone) regulate stress response, metabolism, and sodium/potassium balance; insulin and glucagon regulate blood glucose, with diabetes mellitus resulting from insulin deficiency or resistance; parathyroid hormone, calcitonin and vitamin D regulate calcium/phosphate and bone; and the unit covers male and female reproductive hormones and physiology, the menstrual cycle, pregnancy, lactation, and fetal/neonatal physiology.
+- Unit XV – Sports Physiology: covers how muscles, the cardiovascular system and the respiratory system adapt to exercise training (e.g., increased muscle strength/endurance, cardiac hypertrophy, improved oxygen delivery), and factors that affect athletic performance such as muscle fiber type, body composition, and conditioning.
+- When a user asks any physiology/anatomy-function question — how an organ system works, mechanisms behind symptoms, basic pharmacology-adjacent physiology, or general "why does the body do X" questions — answer confidently and clearly using the above framework, explained simply in your own words like a good physiology teacher, and expand with your general medical knowledge as needed. For any question that sounds like a request for individual medical diagnosis, treatment, or advice about a specific person's symptoms, answer the general physiology/science behind it but also gently suggest they consult a qualified doctor for personal medical advice — you are not a substitute for a real physician.`;
 
   function getCurrentDateTimeStr(){
     const d = new Date();
@@ -1179,47 +1219,48 @@ Current date & time:
 
     try{
       // Convert Anthropic-style content blocks (used internally for images)
-      // into OpenAI/OpenRouter-style content.
-      function convertContent(content){
-        if(typeof content === 'string') return content;
-        if(!Array.isArray(content)) return String(content ?? '');
+      // into Gemini "parts" format.
+      function convertContentParts(content){
+        if(typeof content === 'string') return [{ text: content }];
+        if(!Array.isArray(content)) return [{ text: String(content ?? '') }];
         return content.map(block => {
-          if(block.type === 'text') return { type: 'text', text: block.text };
+          if(block.type === 'text') return { text: block.text };
           if(block.type === 'image'){
             const mediaType = block.source?.media_type || 'image/jpeg';
             const data = block.source?.data || '';
-            return { type: 'image_url', image_url: { url: `data:${mediaType};base64,${data}` } };
+            return { inline_data: { mime_type: mediaType, data: data } };
           }
-          return { type: 'text', text: '' };
+          return { text: '' };
         });
       }
 
       const liveSystemPrompt = SYSTEM_PROMPT + `\n\nCurrent real-world date & time right now: ${getCurrentDateTimeStr()}`;
 
-      let orMessages = [
-        { role: 'system', content: liveSystemPrompt },
-        ...history.map(m => ({ role: m.role, content: convertContent(m.content) }))
-      ];
+      // Gemini uses "user" / "model" roles (not "assistant") and takes the
+      // system prompt as a separate top-level field rather than a message.
+      let geminiContents = history.map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: convertContentParts(m.content)
+      }));
 
-      async function callOpenRouter(msgs){
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      async function callGemini(contents){
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+        const response = await fetch(url, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + OPENROUTER_API_KEY,
-            "HTTP-Referer": window.location.href,
-            "X-Title": "Algebra (test)"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: FREE_MODEL,
-            messages: msgs,
-            max_tokens: 1000
+            system_instruction: { parts: [{ text: liveSystemPrompt }] },
+            contents: contents,
+            generationConfig: { maxOutputTokens: 1000 }
           })
         });
         const data = await response.json();
-        if(data && data.choices && data.choices[0] && data.choices[0].message){
-          return data.choices[0].message.content || "Sorry, something went wrong. Please try again.";
-        } else if(data && data.error){
+        const candidate = data && data.candidates && data.candidates[0];
+        const text = candidate && candidate.content && candidate.content.parts
+          ? candidate.content.parts.map(p => p.text || '').join('')
+          : '';
+        if(text) return text;
+        if(data && data.error){
           // Raw API error detail is intentionally not shown to the user —
           // just throw so the outer catch shows a clean "Try Again" bubble.
           throw new Error(data.error.message || "unknown error");
@@ -1227,7 +1268,7 @@ Current date & time:
         return "Sorry, something went wrong. Please try again.";
       }
 
-      let replyText = await callOpenRouter(orMessages);
+      let replyText = await callGemini(geminiContents);
 
       // If the model asked to search the web (SEARCH: <query> as its whole reply),
       // run the search, feed the results back, and let it produce the real answer.
@@ -1235,12 +1276,12 @@ Current date & time:
       if(searchMatch){
         const query = searchMatch[1];
         const searchResults = await webSearch(query);
-        orMessages = [
-          ...orMessages,
-          { role: 'assistant', content: replyText },
-          { role: 'user', content: `Web search results for "${query}":\n\n${searchResults}\n\nUsing these results, now give the user a complete, direct, natural answer. Do not mention "SEARCH:" or that you performed a search — just answer as if you knew it.` }
+        geminiContents = [
+          ...geminiContents,
+          { role: 'model', parts: [{ text: replyText }] },
+          { role: 'user', parts: [{ text: `Web search results for "${query}":\n\n${searchResults}\n\nUsing these results, now give the user a complete, direct, natural answer. Do not mention "SEARCH:" or that you performed a search — just answer as if you knew it.` }] }
         ];
-        replyText = await callOpenRouter(orMessages);
+        replyText = await callGemini(geminiContents);
       }
 
       removeTyping();
