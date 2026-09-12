@@ -103,8 +103,8 @@
   .am-frame-wrap iframe{width:100%;height:100%;border:0;display:block;}
 
   /* ===== ADDITIVE: Home screen auto-play (muted, no controls) video ===== */
-  .am-video-card{padding:0;overflow:hidden;}
-  .am-video-wrap{position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:12px;overflow:hidden;}
+  .am-video-card{padding:0;overflow:hidden;background:#000;margin:0 auto 18px;}
+  .am-video-wrap{position:relative;width:100%;max-width:calc((100vh - 190px) * 9 / 16);aspect-ratio:9/16;max-height:calc(100vh - 190px);margin:0 auto;background:#000;border-radius:12px;overflow:hidden;}
   .am-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;pointer-events:none;}
   .am-video-shield{position:absolute;inset:0;background:transparent;}
 
@@ -143,6 +143,9 @@
             <div class="am-video-shield" aria-hidden="true"></div>
           </div>
         </div>
+      </div>
+
+      <div id="tabCreateMcq" class="tab-section">
         <div class="card" id="createMcqCard">
           <h2>Create MCQ (like a WhatsApp poll)</h2>
           <span class="small">It will pop up in the main app for every logged-in student. They can tap an option to answer, or skip it. Results below update live in real time.</span>
@@ -231,7 +234,7 @@
     <button type="button" class="nav-btn" data-tab="tabPostUpdate" onclick="showTab('tabPostUpdate')">
       <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></span><span>Post Update</span>
     </button>
-    <button type="button" class="nav-btn" onclick="openCreateMcqShortcut()">
+    <button type="button" class="nav-btn" data-tab="tabCreateMcq" onclick="showTab('tabCreateMcq')">
       <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></span><span>Create MCQ</span>
     </button>
     <button type="button" class="nav-btn" data-tab="tabUsers" onclick="showTab('tabUsers')">
@@ -716,6 +719,22 @@ onAuthStateChanged(auth, user => {
 })();
 
 /* =====================================================================
+   ADDITIVE: "Create MCQ" — now its own tab (reached via the Menu icon's
+   Create MCQ shortcut), separate from the Home tab which now shows only
+   the video. Extends showTab() again (same pattern already used above
+   for 'tabUsers') instead of editing it in place — tabHome/tabPostUpdate/
+   tabPassword/tabUsers keep behaving exactly as before.
+===================================================================== */
+(function(){
+  const prevShowTab = window.showTab;
+  window.showTab = function(tab){
+    prevShowTab(tab);
+    const el = document.getElementById('tabCreateMcq');
+    if(el) el.classList.toggle('active', tab === 'tabCreateMcq');
+  };
+})();
+
+/* =====================================================================
    ADDITIVE: EXTRA TOOLS MENU (bottom-nav menu icon -> popup -> popup iframe)
    Purely additive. Does not touch showTab(), the bottom-nav buttons that
    already existed, or any other existing function/markup.
@@ -747,17 +766,13 @@ onAuthStateChanged(auth, user => {
 })();
 
 /* =====================================================================
-   ADDITIVE: "Create MCQ" bottom-nav shortcut
-   Switches to the Home tab (same as the existing Home nav button) and
-   scrolls/focuses straight to the existing "Create MCQ" card — nothing
-   about that card or publishMCQ() is changed.
+   ADDITIVE: "Create MCQ" shortcut helper — kept for compatibility, now
+   points at the dedicated Create MCQ tab instead of the Home tab.
 ===================================================================== */
 (function(){
   window.openCreateMcqShortcut = function(){
-    if(typeof window.showTab === 'function') window.showTab('tabHome');
+    if(typeof window.showTab === 'function') window.showTab('tabCreateMcq');
     setTimeout(function(){
-      const card = document.getElementById('createMcqCard');
-      if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
       const q = document.getElementById('newMcqQuestion');
       if(q) q.focus({preventScroll:true});
     }, 50);
@@ -795,7 +810,7 @@ onAuthStateChanged(auth, user => {
     if(!el || !id) return;
     el.src = 'https://www.youtube-nocookie.com/embed/' + id +
       '?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0' +
-      '&iv_load_policy=3&playsinline=1&loop=1&playlist=' + id;
+      '&iv_load_policy=3&cc_load_policy=0&showinfo=0&playsinline=1&loop=1&playlist=' + id;
     const inp = document.getElementById('homeVideoInput');
     if(inp && document.activeElement !== inp) inp.value = id;
   }
