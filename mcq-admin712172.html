@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
    <link rel="icon" type="image/jpeg" href="logo.jpg?v=1.1">
     <link rel="apple-touch-icon" sizes="192x192" href="logo.jpg?v=1.1">
     <link rel="manifest" href="manifest.json">
@@ -101,6 +101,15 @@
   .am-frame-close{flex:none;border:0;background:rgba(255,255,255,.16);color:#fff;width:32px;height:32px;border-radius:8px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
   .am-frame-wrap{flex:1;min-height:0;}
   .am-frame-wrap iframe{width:100%;height:100%;border:0;display:block;}
+
+  /* ===== ADDITIVE: Home screen auto-play (muted, no controls) video ===== */
+  .am-video-card{padding:0;overflow:hidden;}
+  .am-video-wrap{position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:12px;overflow:hidden;}
+  .am-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;pointer-events:none;}
+  .am-video-shield{position:absolute;inset:0;background:transparent;}
+
+  /* ===== ADDITIVE: Disable pinch / double-tap zoom on the whole page ===== */
+  html,body{touch-action:manipulation;-ms-touch-action:manipulation;}
 </style>
 </head>
 <body>
@@ -128,7 +137,13 @@
 
     <div id="dashView">
       <div id="tabHome" class="tab-section active">
-        <div class="card">
+        <div class="card am-video-card">
+          <div class="am-video-wrap">
+            <iframe id="amHomeVideo" src="about:blank" title="Home Video" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen="false"></iframe>
+            <div class="am-video-shield" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="card" id="createMcqCard">
           <h2>Create MCQ (like a WhatsApp poll)</h2>
           <span class="small">It will pop up in the main app for every logged-in student. They can tap an option to answer, or skip it. Results below update live in real time.</span>
           <label>Question</label>
@@ -183,6 +198,15 @@
           <p id="pwChangeMsg" class="small" style="margin-top:8px;"></p>
         </div>
 
+        <div class="card">
+          <h2>🎬 Home Screen Video</h2>
+          <span class="small">Home tab ke top par yeh video automatically (muted, bina kisi control ke) chalta hai. Isse kabhi bhi yahi se badal sakte ho — YouTube ka pura link (video/shorts) ya sirf video ID paste karke.</span>
+          <label>YouTube Video Link / ID</label>
+          <input id="homeVideoInput" type="text" placeholder="https://youtube.com/shorts/xxxxxxxxxxx ya sirf ID">
+          <button class="btn" onclick="saveHomeVideo()" style="margin-top:10px;">Update Video</button>
+          <p id="homeVideoMsg" class="small" style="margin-top:8px;"></p>
+        </div>
+
         <button class="btn red" onclick="logoutAdmin()">Logout</button>
       </div>
 
@@ -207,8 +231,8 @@
     <button type="button" class="nav-btn" data-tab="tabPostUpdate" onclick="showTab('tabPostUpdate')">
       <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></span><span>Post Update</span>
     </button>
-    <button type="button" class="nav-btn" data-tab="tabPassword" onclick="showTab('tabPassword')">
-      <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span><span>Password</span>
+    <button type="button" class="nav-btn" onclick="openCreateMcqShortcut()">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></span><span>Create MCQ</span>
     </button>
     <button type="button" class="nav-btn" data-tab="tabUsers" onclick="showTab('tabUsers')">
       <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span>Users</span>
@@ -223,6 +247,10 @@
     <div class="am-sheet">
       <div class="am-sheet-handle"></div>
       <h3>More Admin Tools</h3>
+      <button type="button" class="am-opt" onclick="closeAdminToolsMenu(); showTab('tabPassword');">
+        <span class="am-opt-ic"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
+        <span>Password</span>
+      </button>
       <button type="button" class="am-opt" onclick="openAdminToolsFrame('https://mmitcs.vercel.app/challenge-admin.html','Challenge Admin')">
         <span class="am-opt-ic"><svg viewBox="0 0 24 24"><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"></path><path d="M17 5h2a2 2 0 0 1 2 2 4 4 0 0 1-4 4"></path><path d="M7 5H5a2 2 0 0 0-2 2 4 4 0 0 0 4 4"></path></svg></span>
         <span>Challenge Admin</span>
@@ -716,6 +744,105 @@ onAuthStateChanged(auth, user => {
     if(frameOv) frameOv.classList.remove('show');
     if(frameEl) frameEl.src = 'about:blank';
   };
+})();
+
+/* =====================================================================
+   ADDITIVE: "Create MCQ" bottom-nav shortcut
+   Switches to the Home tab (same as the existing Home nav button) and
+   scrolls/focuses straight to the existing "Create MCQ" card — nothing
+   about that card or publishMCQ() is changed.
+===================================================================== */
+(function(){
+  window.openCreateMcqShortcut = function(){
+    if(typeof window.showTab === 'function') window.showTab('tabHome');
+    setTimeout(function(){
+      const card = document.getElementById('createMcqCard');
+      if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
+      const q = document.getElementById('newMcqQuestion');
+      if(q) q.focus({preventScroll:true});
+    }, 50);
+  };
+})();
+
+/* =====================================================================
+   ADDITIVE: Home screen auto-play video (muted, no controls, no way for
+   the user to pause/play/seek it — pointer-events are disabled on the
+   iframe and a transparent shield sits on top as a backup).
+   Editable from inside the panel itself: Menu -> Password tab ->
+   "Home Screen Video". The chosen video is saved in Firebase at
+   portal/settings/homeVideoId, so it updates live everywhere and
+   survives page reloads/updates — no code editing needed anymore.
+===================================================================== */
+(function(){
+  const DEFAULT_HOME_VIDEO_ID = 'zhpjrAZaePw'; // https://youtube.com/shorts/zhpjrAZaePw
+
+  function extractYouTubeId(raw){
+    if(!raw) return '';
+    raw = raw.trim();
+    try{
+      const u = new URL(raw);
+      if(u.hostname.includes('youtu.be')) return (u.pathname.split('/').filter(Boolean)[0]) || '';
+      if(u.pathname.includes('/shorts/')) return u.pathname.split('/shorts/')[1].split('/')[0].split('?')[0];
+      const v = u.searchParams.get('v');
+      if(v) return v;
+      if(u.pathname.includes('/embed/')) return u.pathname.split('/embed/')[1].split('/')[0].split('?')[0];
+    }catch(e){ /* not a full URL — treat input as a bare video ID */ }
+    return raw.replace(/[^a-zA-Z0-9_-]/g, '');
+  }
+
+  function setHomeVideo(id){
+    const el = document.getElementById('amHomeVideo');
+    if(!el || !id) return;
+    el.src = 'https://www.youtube-nocookie.com/embed/' + id +
+      '?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0' +
+      '&iv_load_policy=3&playsinline=1&loop=1&playlist=' + id;
+    const inp = document.getElementById('homeVideoInput');
+    if(inp && document.activeElement !== inp) inp.value = id;
+  }
+
+  // Show the default video immediately; Firebase value (if any) overrides it below.
+  setHomeVideo(DEFAULT_HOME_VIDEO_ID);
+
+  window.saveHomeVideo = async function(){
+    const msg = document.getElementById('homeVideoMsg');
+    const raw = document.getElementById('homeVideoInput').value;
+    const id = extractYouTubeId(raw);
+    if(!id){
+      if(msg){ msg.style.color = 'var(--sarkari-red)'; msg.textContent = 'Please paste a valid YouTube link or video ID.'; }
+      return;
+    }
+    try{
+      await set(ref(db, 'portal/settings/homeVideoId'), id);
+      if(msg){ msg.style.color = 'var(--primary-blue)'; msg.textContent = 'Home video updated!'; }
+    }catch(e){
+      if(msg){ msg.style.color = 'var(--sarkari-red)'; msg.textContent = 'Update failed: ' + (e.message||e); }
+    }
+  };
+
+  // Live-sync so the Home tab video always reflects whatever is saved,
+  // from this session or any other admin session.
+  onAuthStateChanged(auth, user => {
+    if(user && user.email === ADMIN_EMAIL){
+      onValue(ref(db, 'portal/settings/homeVideoId'), snap => {
+        const id = snap.val();
+        if(id) setHomeVideo(id);
+      });
+    }
+  });
+})();
+
+/* ===== ADDITIVE: extra zoom guard (pinch-zoom / ctrl+scroll zoom) ===== */
+(function(){
+  document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});
+  document.addEventListener('gesturechange', function(e){ e.preventDefault(); }, {passive:false});
+  document.addEventListener('touchmove', function(e){ if(e.touches && e.touches.length > 1) e.preventDefault(); }, {passive:false});
+  document.addEventListener('wheel', function(e){ if(e.ctrlKey) e.preventDefault(); }, {passive:false});
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', function(e){
+    const now = Date.now();
+    if(now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, {passive:false});
 })();
 
 </script>
